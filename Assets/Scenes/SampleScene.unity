@@ -463,9 +463,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcfb10584decb1341aceffd8612b52a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProceduralTerrain
-  _heightScale: 20
-  _noiseScale: 0.01
-  _seed: 3
+  _noiseScale: 100
+  _seed: 19
 --- !u!154 &1001414574
 TerrainCollider:
   m_ObjectHideFlags: 0
