@@ -2,30 +2,31 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [ExecuteAlways]
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ProceduralTerrain : MonoBehaviour
 {
-    private Terrain _terrain;
-    [SerializeField] private float _noiseScale = 0.01f;
+    private MeshFilter meshFilter;
+    [SerializeField] private float noiseScale = 80f;
     [SerializeField] private int _seed = 0;
-
-    private void Awake()
-    {
-        _seed = Random.Range(0, 100);
-        _terrain = GetComponent<Terrain>();
-    }
+    [SerializeField] private Vector2Int dimensions = new (256, 256);
+    [SerializeField] private float heightMultiplier = 50;
 
     private void Start()
     {
+        _seed = Random.Range(int.MinValue, int.MaxValue);
+        meshFilter = GetComponent<MeshFilter>();
         Generate(_seed);
     }
 
-    public void Generate(int seed)
+    public void Generate(int seed = 0)
     {
+        if (seed == 0)
+            seed = Random.Range(int.MinValue, int.MaxValue);
         _seed = seed;
-        var terrainData = _terrain.terrainData;
-        var width = terrainData.heightmapResolution;
-        var height = terrainData.heightmapResolution;
-        var noise = Noise.Perlin(width, height, _noiseScale, _seed);
-        terrainData.SetHeights(0, 0, noise);
+        var width = dimensions.x;
+        var height = dimensions.y;
+        var noise = Noise.Perlin(width, height, noiseScale, _seed);
+        var meshData = MeshGenerator.GenerateTerrainMesh(noise, heightMultiplier);
+        meshFilter.sharedMesh = meshData.CreateMesh();
     }
 }
