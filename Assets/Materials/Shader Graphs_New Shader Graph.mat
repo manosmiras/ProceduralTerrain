@@ -33,11 +33,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_7f7badda2e944e029b6426a5e2ada85d_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 553655c136095de4287206e99519bee6, type: 3}
+        m_Texture: {fileID: 2800000, guid: 1e87ce55f06e1ab4592802610a288325, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_8626185bbf57429da47cc83b33eb6f47_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: f5d9a6c49b71a074780c487fd2b235e4, type: 3}
+        m_Texture: {fileID: 2800000, guid: a34f86f4e5e13d4438664ca9c7680cf3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_9ddcf1ab69ee483f97f74dcd3a398a63_Texture_1_Texture2D:
@@ -45,19 +45,19 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_a80b59d753f54e6186cc3c7c9bae9cae_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 22a07886b0a32944ab0773c165916ce0, type: 3}
+        m_Texture: {fileID: 2800000, guid: 54a6f303214dda941b5ed55f58f07c39, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_b254e9eff5904cae9344b8c012870884_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 1c420899d0e68d0479d4e451b8c0dfd7, type: 3}
+        m_Texture: {fileID: 2800000, guid: b7d8f79d490f95240b3544e76d242ba4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_cabf36b1034d486281e51dbf91d0c12d_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: c90142eaf914ad143935f5aa4b37b149, type: 3}
+        m_Texture: {fileID: 2800000, guid: cf11e3035c1e6f4439075a746cccd5aa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Triplanar_f56115973910453bb9545f40505963e7_Texture_1_Texture2D:
-        m_Texture: {fileID: 2800000, guid: 37ac4aafb63372c499c1f3fca0b324ad, type: 3}
+        m_Texture: {fileID: 2800000, guid: 255766198fd3163469de3c91b8e28783, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -74,13 +74,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Edge1: 0.45
-    - _Edge2: 1.21
-    - _HeightContrast: 2.3
-    - _HeightOffset: 51.97
+    - _Edge1: 0.46
+    - _Edge2: 0.97
+    - _HeightContrast: 8.34
+    - _HeightOffset: 42.11
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _Tiling: 0.07
+    - _Tiling: 0.01
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

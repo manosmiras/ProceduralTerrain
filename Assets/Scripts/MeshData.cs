@@ -4,23 +4,23 @@ public class MeshData
 {
     public readonly Vector3[] Vertices;
     public readonly Vector2[] Uvs;
-    private readonly int[] triangles;
 
-    private int triangleIndex;
+    private readonly int[] _triangles;
+    private int _triangleIndex;
 
     public MeshData(int meshWidth, int meshHeight)
     {
         Vertices = new Vector3[meshWidth * meshHeight];
         Uvs = new Vector2[meshWidth * meshHeight];
-        triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
+        _triangles = new int[(meshWidth - 1) * (meshHeight - 1) * 6];
     }
 
     public void AddTriangle(int a, int b, int c)
     {
-        triangles[triangleIndex] = a;
-        triangles[triangleIndex + 1] = b;
-        triangles[triangleIndex + 2] = c;
-        triangleIndex += 3;
+        _triangles[_triangleIndex] = a;
+        _triangles[_triangleIndex + 1] = b;
+        _triangles[_triangleIndex + 2] = c;
+        _triangleIndex += 3;
     }
 
     public Mesh CreateMesh()
@@ -28,7 +28,7 @@ public class MeshData
         var mesh = new Mesh
         {
             vertices = Vertices,
-            triangles = triangles,
+            triangles = _triangles,
             uv = Uvs
         };
         mesh.RecalculateNormals();
