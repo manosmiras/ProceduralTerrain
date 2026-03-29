@@ -10,6 +10,9 @@ public class ProceduralTerrain : MonoBehaviour
     [SerializeField] private int _seed = 0;
     [SerializeField] private Vector2Int dimensions = new (256, 256);
     [SerializeField] private float heightMultiplier = 50;
+    [SerializeField] private int _octaves = 8;
+    [SerializeField] private float _persistence = 0.5f;
+    [SerializeField] private float _lacunarity = 2f;
 
     private void Start()
     {
@@ -25,7 +28,7 @@ public class ProceduralTerrain : MonoBehaviour
         _seed = seed;
         var width = dimensions.x;
         var height = dimensions.y;
-        var noise = Noise.Perlin(width, height, noiseScale, _seed);
+        var noise = Noise.Perlin(width, height, noiseScale, _seed, _octaves, _persistence, _lacunarity);
         var meshData = MeshGenerator.GenerateTerrainMesh(noise, heightMultiplier);
         meshFilter.sharedMesh = meshData.CreateMesh();
     }
