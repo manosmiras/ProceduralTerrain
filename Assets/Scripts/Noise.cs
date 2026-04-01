@@ -3,15 +3,15 @@ using UnityEngine;
 public static class Noise
 {
     public static float[,] Perlin(int width, int height, float scale, int seed = 1, int octaves = 8,
-        float persistence = 0.5f, float lacunarity = 2f)
+        float persistence = 0.5f, float lacunarity = 2f, Vector2 offset = default)
     {
         var heights = new float[width, height];
         var rng = new System.Random(seed);
         var octaveOffsets = new Vector2[octaves];
         for (var i = 0; i < octaves; i++)
         {
-            float offsetX = rng.Next(-100000, 100000);
-            float offsetY = rng.Next(-100000, 100000);
+            var offsetX = rng.Next(-100000, 100000) + offset.x;
+            var offsetY = rng.Next(-100000, 100000) + offset.y;
             octaveOffsets[i] = new Vector2(offsetX, offsetY);
         }
 
@@ -56,6 +56,7 @@ public static class Noise
                 heights[x, y] = noiseHeight;
             }
         }
+        
 
         for (var y = 0; y < height; y++)
         {
