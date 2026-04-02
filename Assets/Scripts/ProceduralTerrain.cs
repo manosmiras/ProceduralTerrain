@@ -1,74 +1,41 @@
-using System.Text;
 using UnityEngine;
 
 [ExecuteAlways]
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class ProceduralTerrain : MonoBehaviour
+public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
 {
-    private MeshFilter _meshFilter;
-    [SerializeField] private float _noiseScale = 80f;
-    [SerializeField] private int _seed = 0;
-    [SerializeField] private float _heightMultiplier = 50;
-    [SerializeField] private int _octaves = 8;
-    [SerializeField] private float _persistence = 0.5f;
-    [SerializeField] private float _lacunarity = 2f;
-    [SerializeField] private AnimationCurve _heightCurve;
+    public float NoiseScale = 80f;
+    public int Seed = 0;
+    public float HeightMultiplier = 50;
+    public int Octaves = 8;
+    public float Persistence = 0.5f;
+    public float Lacunarity = 2f;
+    public AnimationCurve HeightCurve;
     [Range(0, 6)]
-    [SerializeField] private int _lod = 0;
-    [SerializeField] private int _mapChunkSize = 241;
-    
-    [Header("Normal Debug")]
-    [SerializeField] private bool _drawNormals = true;
-    [SerializeField] private float _normalLength = 1f;
-    [SerializeField] private Color _normalColor = Color.green;
+    public int Lod = 0;
+    public int ChunkSize = 241;
+    public GameObject TerrainChunkPrefab;
 
     private void Start()
     {
-        _meshFilter = GetComponent<MeshFilter>();
+        Generate();
     }
 
     public void Generate()
     {
-        var noise = Noise.Perlin(_mapChunkSize, _mapChunkSize, _noiseScale, _seed, _octaves, _persistence, _lacunarity, new Vector2(transform.position.x, transform.position.z));
-
-        var sb = new StringBuilder();
-        for (var y = 0; y < noise.GetLength(1); y++)
+        ClearChildren(transform);
+        for (var i = 0; i < 4; i++)
         {
-            for (var x = 0; x < noise.GetLength(0); x++)
-            {
-                sb.AppendLine($"{noise[x, y]}");
-            }
+            var go = Instantiate(TerrainChunkPrefab, transform);
+            go.transform.position = new Vector3(i * (ChunkSize - 1), 0, 0);
+            go.GetComponent<TerrainChunk>().Generate();
         }
-        Debug.Log(sb.ToString());
-        var meshData = MeshGenerator.GenerateTerrainMesh(noise, _heightMultiplier, _heightCurve, _lod);
-        _meshFilter.sharedMesh = meshData.CreateMesh();
     }
     
-    private void OnDrawGizmosSelected()
+    public static void ClearChildren(Transform parent)
     {
-        if (!_drawNormals)
-            return;
-
-        if (_meshFilter == null)
-            _meshFilter = GetComponent<MeshFilter>();
-
-        var mesh = _meshFilter != null ? _meshFilter.sharedMesh : null;
-        if (mesh == null)
-            return;
-
-        var vertices = mesh.vertices;
-        var normals = mesh.normals;
-
-        if (vertices == null || normals == null || vertices.Length != normals.Length)
-            return;
-
-        Gizmos.color = _normalColor;
-
-        for (var i = 0; i < vertices.Length; i++)
+        for (var i = parent.childCount - 1; i >= 0; i--)
         {
-            var worldVertex = transform.TransformPoint(vertices[i]);
-            var worldNormal = transform.TransformDirection(normals[i]);
-            Gizmos.DrawLine(worldVertex, worldVertex + worldNormal * _normalLength);
+            DestroyImmediate(parent.GetChild(i).gameObject);
         }
     }
 }
