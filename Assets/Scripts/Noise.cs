@@ -8,29 +8,23 @@ public static class Noise
         var heights = new float[width, height];
         var rng = new System.Random(seed);
         var octaveOffsets = new Vector2[octaves];
+
+        float maxPossibleHeight = 0;
+        float amplitude = 1;
+
         for (var i = 0; i < octaves; i++)
         {
-            var offsetX = rng.Next(-100000, 100000) + offset.x;
-            var offsetY = rng.Next(-100000, 100000) + offset.y;
+            var offsetX = rng.Next(-100000, 100000);
+            var offsetY = rng.Next(-100000, 100000);
             octaveOffsets[i] = new Vector2(offsetX, offsetY);
+            maxPossibleHeight = 1 / (1 - persistence);
+            amplitude *= persistence;
         }
-
-        var maxNoiseHeight = float.MinValue;
-        var minNoiseHeight = float.MaxValue;
-
-        var halfWidth = width / 2f;
-        var halfHeight = height / 2f;
-
-        if (scale <= 0f)
-        {
-            scale = 0.0001f;
-        }
-
         for (var y = 0; y < height; y++)
         {
             for (var x = 0; x < width; x++)
             {
-                float amplitude = 1;
+                amplitude = 1;
                 float frequency = 1;
                 float noiseHeight = 0;
 
@@ -38,52 +32,27 @@ public static class Noise
                 {
                     var sampleX = (x + offset.x) / scale * frequency + octaveOffsets[i].x;
                     var sampleY = (y + offset.y) / scale * frequency + octaveOffsets[i].y;
-                    var perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
+                    var perlinValue = Mathf.PerlinNoise(sampleX, sampleY);
                     noiseHeight += perlinValue * amplitude;
                     amplitude *= persistence;
                     frequency *= lacunarity;
                 }
 
-                if (noiseHeight > maxNoiseHeight)
-                {
-                    maxNoiseHeight = noiseHeight;
-                }
-                else if (noiseHeight < minNoiseHeight)
-                {
-                    minNoiseHeight = noiseHeight;
-                }
-
                 heights[x, y] = noiseHeight;
             }
         }
-        
-
-        for (var y = 0; y < height; y++)
-        {
-            for (var x = 0; x < width; x++)
-            {
-                heights[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, heights[x, y]);
-            }
-        }
-
-        return heights;
+        return Normalize(heights, maxPossibleHeight);
     }
-    
-    public static float[,] PerlinSimple(int width, int height, float scale, Vector2 offset = default)
-    {
-        var heights = new float[width, height];
 
-        for (var y = 0; y < height; y++)
+    private static float[,] Normalize(float[,] heights, float maxHeight)
+    {
+        for (var y = 0; y < heights.GetLength(1); y++)
         {
-            for (var x = 0; x < width; x++)
+            for (var x = 0; x < heights.GetLength(0); x++)
             {
-                var sampleX = (x + offset.x) / scale;
-                var sampleZ = (y + offset.y) / scale;
-                var noiseValue = Mathf.PerlinNoise(sampleX, sampleZ);
-                heights[x, y] = noiseValue;
+                heights[x, y] /= maxHeight;
             }
         }
-        
         return heights;
     }
 }
