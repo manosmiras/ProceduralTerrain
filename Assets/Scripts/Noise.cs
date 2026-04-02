@@ -36,8 +36,8 @@ public static class Noise
 
                 for (var i = 0; i < octaves; i++)
                 {
-                    var sampleX = (x - halfWidth) / scale * frequency + octaveOffsets[i].x;
-                    var sampleY = (y - halfHeight) / scale * frequency + octaveOffsets[i].y;
+                    var sampleX = (x + offset.x) / scale * frequency + octaveOffsets[i].x;
+                    var sampleY = (y + offset.y) / scale * frequency + octaveOffsets[i].y;
                     var perlinValue = Mathf.PerlinNoise(sampleX, sampleY) * 2 - 1;
                     noiseHeight += perlinValue * amplitude;
                     amplitude *= persistence;
@@ -66,6 +66,24 @@ public static class Noise
             }
         }
 
+        return heights;
+    }
+    
+    public static float[,] PerlinSimple(int width, int height, float scale, Vector2 offset = default)
+    {
+        var heights = new float[width, height];
+
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var sampleX = (x + offset.x) / scale;
+                var sampleZ = (y + offset.y) / scale;
+                var noiseValue = Mathf.PerlinNoise(sampleX, sampleZ);
+                heights[x, y] = noiseValue;
+            }
+        }
+        
         return heights;
     }
 }

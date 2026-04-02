@@ -23,7 +23,8 @@ public class ProceduralTerrain : MonoBehaviour
 
     public void Generate()
     {
-        var noise = Noise.Perlin(_mapChunkSize, _mapChunkSize, _noiseScale, _seed, _octaves, _persistence, _lacunarity, Vector2.zero);
+        //var noise = Noise.Perlin(_mapChunkSize, _mapChunkSize, _noiseScale, _seed, _octaves, _persistence, _lacunarity, new Vector2(transform.position.x, transform.position.z));
+        var noise = Noise.PerlinSimple(_mapChunkSize, _mapChunkSize, _noiseScale, new Vector2(transform.position.x, transform.position.z));
         var meshData = MeshGenerator.GenerateTerrainMesh(noise, _heightMultiplier, _heightCurve, _lod);
         _meshFilter.sharedMesh = meshData.CreateMesh();
     }
