@@ -60,18 +60,18 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
         }
     }
     
-    private void Update()
-    {
-        foreach (var terrainChunk in _terrainChunks)
-        {
-            var dist = Vector3.Distance(terrainChunk.transform.position, _camera.transform.position);
-            if (dist < _closestDistance)
-            {
-                _closestDistance = dist;
-                _closestChunk = terrainChunk;
-            }
-        }
-        var distToClosest = Vector3.Distance(_camera.transform.position, _closestChunk.transform.position);
-        Debug.Log($"Closest chunk: {_closestChunk.transform.position}, {distToClosest} units away.");
-    }
+    // private void Update()
+    // {
+    //     foreach (var terrainChunk in _terrainChunks)
+    //     {
+    //         var dist = Vector3.Distance(terrainChunk.transform.position, _camera.transform.position);
+    //         if (dist < _closestDistance)
+    //         {
+    //             _closestDistance = dist;
+    //             _closestChunk = terrainChunk;
+    //         }
+    //     }
+    //     var distToClosest = Vector3.Distance(_camera.transform.position, _closestChunk.transform.position);
+    //     Debug.Log($"Closest chunk: {_closestChunk.transform.position}, {distToClosest} units away.");
+    // }
 }
