@@ -34,7 +34,7 @@ public struct NoiseJob : IJobFor
             var sampleX = (x - halfWidth + OctaveOffsets[i].x + Offset.x) / Scale * frequency;
             var sampleY = (y - halfHeight + OctaveOffsets[i].y + Offset.y) / Scale * frequency;
 
-            var perlinValue = noise.snoise(new float2(sampleX, sampleY));
+            var perlinValue = noise.cnoise(new float2(sampleX, sampleY));
             noiseHeight += perlinValue * amplitude;
 
             amplitude *= Persistence;

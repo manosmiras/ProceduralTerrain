@@ -1,5 +1,9 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
+
+public enum NoiseType { Simple, Job }
 
 [ExecuteAlways]
 public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
@@ -20,6 +24,7 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     private List<TerrainChunk> _terrainChunks = new List<TerrainChunk>();
     private float _closestDistance = float.MaxValue;
     private TerrainChunk _closestChunk;
+    public NoiseType NoiseType = NoiseType.Simple;
 
     private void Start()
     {
@@ -30,6 +35,8 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
 
     public void Generate()
     {
+        var sw = new Stopwatch();
+        sw.Start();
         ClearChildren(transform);
         var center = transform.position;
         for (var x = -ChunkRadius; x <= ChunkRadius; x++)
@@ -41,6 +48,8 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
                 _terrainChunks.Add(tc);
             }
         }
+        sw.Stop();
+        Debug.Log($"Terrain generation took {sw.ElapsedMilliseconds}ms");
     }
 
     private TerrainChunk SpawnTerrainChunk(Vector3 position)

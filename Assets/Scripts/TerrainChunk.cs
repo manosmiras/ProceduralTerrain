@@ -17,16 +17,34 @@ public class TerrainChunk : MonoBehaviour
         var terrain = ProceduralTerrain.Instance;
         var sw = new Stopwatch();
         sw.Start();
-        var noise = Noise.Perlin(
-            terrain.ChunkSize,
-            terrain.ChunkSize,
-            terrain.NoiseScale,
-            terrain.Seed,
-            terrain.Octaves,
-            terrain.Persistence,
-            terrain.Lacunarity,
-            transform.position
-        );
+        float[,] noise;
+        if (terrain.NoiseType == NoiseType.Simple)
+        {
+            noise = Noise.Perlin(
+                terrain.ChunkSize,
+                terrain.ChunkSize,
+                terrain.NoiseScale,
+                terrain.Seed,
+                terrain.Octaves,
+                terrain.Persistence,
+                terrain.Lacunarity,
+                transform.position
+            );
+        }
+        else
+        {
+            noise = Noise.PerlinFromJob(
+                terrain.ChunkSize,
+                terrain.ChunkSize,
+                terrain.NoiseScale,
+                terrain.Seed,
+                terrain.Octaves,
+                terrain.Persistence,
+                terrain.Lacunarity,
+                transform.position
+            );
+        }
+        
         sw.Stop();
         Debug.Log($"Generated noise in {sw.ElapsedMilliseconds}ms");
         sw.Restart();
