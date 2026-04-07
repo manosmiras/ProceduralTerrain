@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4091536578725402936}
   - component: {fileID: 3274151464124004357}
   - component: {fileID: 4010923420189920845}
+  - component: {fileID: 3160496069962822594}
   m_Layer: 0
   m_Name: TerrainChunk
   m_TagString: Untagged
@@ -103,3 +104,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cfda911697747c9a83483ae306eda40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TerrainChunk
+--- !u!64 &3160496069962822594
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2939582465844515103}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 0}

@@ -1,22 +1,30 @@
-﻿using System.Diagnostics;
+﻿using Unity.Profiling;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 [ExecuteAlways]
 public class TerrainChunk : MonoBehaviour
 {
     private MeshFilter _meshFilter;
+    private MeshCollider _meshCollider;
+    private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("Terrain.Noise");
+    private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("Terrain.Mesh");
 
     private void Awake()
     {
         _meshFilter = GetComponent<MeshFilter>();
+        _meshCollider = GetComponent<MeshCollider>();
     }
 
     public void Generate()
     {
+        var noise = GenerateNoise();
+        GenerateMesh(noise);
+    }
+
+    private float[,] GenerateNoise()
+    {
+        NoiseMarker.Begin();
         var terrain = ProceduralTerrain.Instance;
-        var sw = new Stopwatch();
-        sw.Start();
         float[,] noise;
         if (terrain.NoiseType == NoiseType.Simple)
         {
@@ -44,14 +52,18 @@ public class TerrainChunk : MonoBehaviour
                 transform.position
             );
         }
-        
-        sw.Stop();
-        Debug.Log($"Generated noise in {sw.ElapsedMilliseconds}ms");
-        sw.Restart();
-        //var noise = Noise.SimplePerlin(terrain.ChunkSize, terrain.ChunkSize, terrain.NoiseScale, transform.position);
+        NoiseMarker.End();
+        return noise;
+    }
+
+    private void GenerateMesh(float[,] noise)
+    {
+        MeshMarker.Begin();
+        var terrain = ProceduralTerrain.Instance;
         var meshData = MeshGenerator.GenerateTerrainMesh(noise, terrain.HeightMultiplier, terrain.HeightCurve, terrain.Lod);
-        sw.Stop();
-        Debug.Log($"Generated mesh in {sw.ElapsedMilliseconds}ms");
-        _meshFilter.sharedMesh = meshData.CreateMesh();
+        var mesh = meshData.CreateMesh();
+        _meshFilter.sharedMesh = mesh;
+        _meshCollider.sharedMesh = mesh;
+        MeshMarker.End();
     }
 }
