@@ -3,15 +3,55 @@ using UnityEngine;
 public class PlayerCamera : MonoBehaviour
 {
     public float Speed = 20f;
-    private const float Distance = 10000;
+    public Vector3[] CameraPath;
     private TerrainChunk _chunk;
     private int _pathIndex;
-    private float _time = 0;
+    private const int PathSimplification = 32;
+    
+    private void OnEnable()
+    {
+        ProceduralTerrain.Instance.OnTerrainGenerated += GenerateCameraPath;
+    }
+
+    private void OnDisable()
+    {
+        ProceduralTerrain.Instance.OnTerrainGenerated -= GenerateCameraPath;
+    }
 
     private void Start()
     {
         transform.position = new Vector3(0, 1000f, 0);
-        _time = 0f;
+    }
+
+    private void GenerateCameraPath()
+    {
+        var terrain = ProceduralTerrain.Instance;
+        var chunkCount = terrain.TerrainChunks.Count;
+        var pointsPerChunk = (terrain.ChunkSize + PathSimplification - 1) / PathSimplification;
+        CameraPath = new Vector3[pointsPerChunk * chunkCount];
+        for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
+        {
+            var terrainChunk = terrain.TerrainChunks[chunkIndex];
+            var middleX = terrain.ChunkSize / 2;
+            
+            var pathIndex = 0;
+            var baseIndex = chunkIndex * pointsPerChunk;
+            for (var z = terrain.ChunkSize - 1; z >= 0; z -= PathSimplification)
+            {
+                var index = middleX + z * terrain.ChunkSize;
+                CameraPath[baseIndex + pathIndex] = terrainChunk.transform.position + terrainChunk.MeshData.Vertices[index];
+                pathIndex++;
+            }
+        }
+        Debug.Log($"Camera path has {CameraPath.Length} points");
+    }
+    
+    private void Update()
+    {
+        for (var i = 0; i < CameraPath.Length - 1; i++)
+        {
+            Debug.DrawLine(CameraPath[i], CameraPath[i + 1], Color.red);
+        }
     }
 
 
