@@ -5,7 +5,6 @@ using Debug = UnityEngine.Debug;
 
 public enum NoiseType { Simple, Job }
 
-[ExecuteAlways]
 public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
 {
     public float NoiseScale = 80f;
@@ -25,6 +24,8 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     private float _closestDistance = float.MaxValue;
     private TerrainChunk _closestChunk;
     public NoiseType NoiseType = NoiseType.Simple;
+    public Vector3[] cameraPath;
+    private const int pathSimplification = 32;
 
     private void Start()
     {
@@ -39,17 +40,43 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
         sw.Start();
         ClearChildren(transform);
         var center = transform.position;
-        for (var x = -ChunkRadius; x <= ChunkRadius; x++)
-        {
+        //for (var x = -ChunkRadius; x <= ChunkRadius; x++)
+        //{
             for (var z = -ChunkRadius; z <= ChunkRadius; z++)
             {
-                var position = center + new Vector3(x * (ChunkSize - 1), 0, z * (ChunkSize - 1));
+                var position = center + new Vector3(0, 0, z * (ChunkSize - 1));
                 var tc = SpawnTerrainChunk(position);
                 _terrainChunks.Add(tc);
             }
-        }
+        //}
         sw.Stop();
         Debug.Log($"Terrain generation took {sw.ElapsedMilliseconds}ms");
+        var chunkCount = _terrainChunks.Count;
+        var pointsPerChunk = (ChunkSize + pathSimplification - 1) / pathSimplification;
+        cameraPath = new Vector3[pointsPerChunk * chunkCount];
+        for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
+        {
+            var terrainChunk = _terrainChunks[chunkIndex];
+            var middleX = ChunkSize / 2;
+            
+            var pathIndex = 0;
+            var baseIndex = chunkIndex * pointsPerChunk;
+            for (var z = ChunkSize - 1; z >= 0; z -= pathSimplification)
+            {
+                var index = middleX + z * ChunkSize;
+                cameraPath[baseIndex + pathIndex] = terrainChunk.transform.position + terrainChunk.MeshData.Vertices[index];
+                pathIndex++;
+            }
+            Debug.Log($"Camera path has {cameraPath.Length} points");
+        }
+    }
+
+    private void Update()
+    {
+        for (var i = 0; i < cameraPath.Length - 1; i++)
+        {
+            Debug.DrawLine(cameraPath[i], cameraPath[i + 1], Color.red);
+        }
     }
 
     private TerrainChunk SpawnTerrainChunk(Vector3 position)

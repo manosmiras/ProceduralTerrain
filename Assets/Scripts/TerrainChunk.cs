@@ -1,9 +1,10 @@
 ﻿using Unity.Profiling;
 using UnityEngine;
 
-[ExecuteAlways]
 public class TerrainChunk : MonoBehaviour
 {
+    public MeshData MeshData;
+    public float[,] HeightMap;
     private MeshFilter _meshFilter;
     private MeshCollider _meshCollider;
     private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("Terrain.Noise");
@@ -17,11 +18,12 @@ public class TerrainChunk : MonoBehaviour
 
     public void Generate()
     {
-        var noise = GenerateNoise();
-        GenerateMesh(noise);
+        HeightMap = GenerateHeightMap();
+        MeshData = GenerateMesh(HeightMap);
+        
     }
 
-    private float[,] GenerateNoise()
+    private float[,] GenerateHeightMap()
     {
         NoiseMarker.Begin();
         var terrain = ProceduralTerrain.Instance;
@@ -56,7 +58,7 @@ public class TerrainChunk : MonoBehaviour
         return noise;
     }
 
-    private void GenerateMesh(float[,] noise)
+    private MeshData GenerateMesh(float[,] noise)
     {
         MeshMarker.Begin();
         var terrain = ProceduralTerrain.Instance;
@@ -65,5 +67,6 @@ public class TerrainChunk : MonoBehaviour
         _meshFilter.sharedMesh = mesh;
         _meshCollider.sharedMesh = mesh;
         MeshMarker.End();
+        return meshData;
     }
 }
