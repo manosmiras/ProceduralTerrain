@@ -6,10 +6,8 @@ namespace Editor
     [CustomEditor(typeof(ProceduralTerrain))]
     public class ProceduralTerrainEditor : UnityEditor.Editor
     {
-        private const int MaxWidth = 256;
-        private const int MinWidth = 16;
-        private const int MaxHeight = 256;
-        private const int MinHeight = 16;
+        private const int MaxChunkSize = 256;
+        private const int MinChunkSize = 8;
 
         public override void OnInspectorGUI()
         {
@@ -17,14 +15,10 @@ namespace Editor
 
             DrawDefaultInspector();
 
-            var dimensionsProperty = serializedObject.FindProperty("dimensions");
-            if (dimensionsProperty != null)
+            var chunkSizeProperty = serializedObject.FindProperty("ChunkSize");
+            if (chunkSizeProperty != null)
             {
-                var xProp = dimensionsProperty.FindPropertyRelative("x");
-                var yProp = dimensionsProperty.FindPropertyRelative("y");
-
-                xProp.intValue = Mathf.Clamp(xProp.intValue, MinWidth, MaxWidth);
-                yProp.intValue = Mathf.Clamp(yProp.intValue, MinHeight, MaxHeight);
+                chunkSizeProperty.intValue = Mathf.Clamp(chunkSizeProperty.intValue, MinChunkSize, MaxChunkSize);
             }
 
             serializedObject.ApplyModifiedProperties();
