@@ -1,12 +1,17 @@
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Splines;
 
 public class PlayerCamera : MonoBehaviour
 {
-    public float Speed = 20f;
-    public Vector3[] CameraPath;
+    public float Speed = 40f;
+
+    private Spline _splinePath;
+    private float3[] _cameraPath;
     private TerrainChunk _chunk;
     private int _pathIndex;
-    private const int PathSimplification = 32;
+    private const int PathSimplification = 64;
+    private float _progress;
     
     private void OnEnable()
     {
@@ -28,7 +33,7 @@ public class PlayerCamera : MonoBehaviour
         var terrain = ProceduralTerrain.Instance;
         var chunkCount = terrain.TerrainChunks.Count;
         var pointsPerChunk = (terrain.ChunkSize + PathSimplification - 1) / PathSimplification;
-        CameraPath = new Vector3[pointsPerChunk * chunkCount];
+        _cameraPath = new float3[pointsPerChunk * chunkCount];
         for (var chunkIndex = 0; chunkIndex < chunkCount; chunkIndex++)
         {
             var terrainChunk = terrain.TerrainChunks[chunkIndex];
@@ -39,55 +44,40 @@ public class PlayerCamera : MonoBehaviour
             for (var z = terrain.ChunkSize - 1; z >= 0; z -= PathSimplification)
             {
                 var index = middleX + z * terrain.ChunkSize;
-                CameraPath[baseIndex + pathIndex] = terrainChunk.transform.position + terrainChunk.MeshData.Vertices[index];
+                _cameraPath[baseIndex + pathIndex] =  terrainChunk.transform.position + terrainChunk.MeshData.Vertices[index];
                 pathIndex++;
             }
         }
-        Debug.Log($"Camera path has {CameraPath.Length} points");
+
+        _splinePath = new Spline();
+        _splinePath.AddRange(_cameraPath);
+        Debug.Log($"Camera path has {_cameraPath.Length} points");
     }
     
     private void Update()
     {
-        for (var i = 0; i < CameraPath.Length - 1; i++)
+        for (var i = 0; i < _cameraPath.Length - 1; i++)
         {
-            Debug.DrawLine(CameraPath[i], CameraPath[i + 1], Color.red);
+            Debug.DrawLine(_cameraPath[i], _cameraPath[i + 1], Color.red);
         }
     }
+    
+    private void LateUpdate()
+    {
+        if (_splinePath == null || _splinePath.Count < 2)
+            return;
 
+        _progress += (Speed * Time.deltaTime) / GetApproxSplineLength();
+        _progress = Mathf.Repeat(_progress, 1f);
 
-//     void LateUpdate()
-//     {
-//         var origin = transform.position;
-//         origin.y = 1000f;
-//         var direction = Vector3.down;
-//         if (Physics.Raycast(origin, direction * Distance, out var hitInfo))
-//         {
-//             Debug.Log($"Hit: {hitInfo.collider.name}");
-//             if (hitInfo.collider.TryGetComponent<TerrainChunk>(out var chunk))
-//             {
-//                 Debug.Log($"Chunk: {chunk.transform.position}");
-//                 if (_chunk != chunk)
-//                 {
-//                     _chunk = chunk;
-//                     _pathIndex = 0;
-//                 }
-//             }
-//             //Debug.DrawLine(origin, direction * Distance, Color.red);
-//             //transform.position = new Vector3(transform.position.x, hitInfo.point.y, transform.position.z);
-//         }
-//
-//         if (_chunk == null || _chunk.cameraPath == null || _pathIndex >= _chunk.cameraPath.Length) return;
-//         _time += Time.deltaTime;
-//         if (_time < 1f) return;
-//         _time = 0f;
-//         transform.position = _chunk.cameraPath[_pathIndex];
-//         _pathIndex++;
-//         /*var targetPosition = _chunk.cameraPath[_pathIndex];
-//         transform.position = Vector3.MoveTowards(transform.position, targetPosition, Speed * Time.deltaTime);
-//
-//         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
-//         {
-//             _pathIndex++;
-//         }*/
-//     }
+        _splinePath.Evaluate(_progress, out var position, out var tangent, out var up);
+
+        transform.position = position;
+        transform.rotation = Quaternion.LookRotation(tangent, up);
+    }
+    
+    private float GetApproxSplineLength()
+    {
+        return ProceduralTerrain.Instance.TerrainChunks.Count * ProceduralTerrain.Instance.ChunkSize;
+    }
 }

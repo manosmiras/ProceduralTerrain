@@ -40,6 +40,7 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
         TerrainGeneration.Begin();
         ClearChildren(transform);
         var center = transform.position;
+        TerrainChunks.Clear();
         //for (var x = -ChunkRadius; x <= ChunkRadius; x++)
         //{
             for (var z = -ChunkRadius; z <= ChunkRadius; z++)
