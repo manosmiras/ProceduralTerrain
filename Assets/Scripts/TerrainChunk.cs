@@ -1,6 +1,7 @@
 ﻿using Unity.Profiling;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class TerrainChunk : MonoBehaviour
 {
     public MeshData MeshData;
@@ -20,7 +21,6 @@ public class TerrainChunk : MonoBehaviour
     {
         HeightMap = GenerateHeightMap();
         MeshData = GenerateMesh(HeightMap);
-        
     }
 
     private float[,] GenerateHeightMap()
@@ -62,7 +62,8 @@ public class TerrainChunk : MonoBehaviour
     {
         MeshMarker.Begin();
         var terrain = ProceduralTerrain.Instance;
-        var meshData = MeshGenerator.GenerateTerrainMesh(noise, terrain.HeightMultiplier, terrain.HeightCurve, terrain.Lod);
+        var meshData =
+            MeshGenerator.GenerateTerrainMesh(noise, terrain.HeightMultiplier, terrain.HeightCurve, terrain.Lod);
         var mesh = meshData.CreateMesh();
         _meshFilter.sharedMesh = mesh;
         _meshCollider.sharedMesh = mesh;

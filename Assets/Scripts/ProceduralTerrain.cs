@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Unity.Profiling;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 public enum NoiseType { Simple, Job }
 
+[ExecuteInEditMode]
 public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
 {
     public float NoiseScale = 80f;
@@ -22,11 +22,11 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     public GameObject TerrainChunkPrefab;
     public NoiseType NoiseType = NoiseType.Simple;
     public List<TerrainChunk> TerrainChunks = new();
-    
     public event Action OnTerrainGenerated;
+    
     private Camera _camera;
     private TerrainChunk _closestChunk;
-
+    private static readonly ProfilerMarker TerrainGeneration = new ProfilerMarker("Terrain.Generation");
 
     protected void Start()
     {
@@ -37,8 +37,7 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
 
     public void Generate()
     {
-        var sw = new Stopwatch();
-        sw.Start();
+        TerrainGeneration.Begin();
         ClearChildren(transform);
         var center = transform.position;
         //for (var x = -ChunkRadius; x <= ChunkRadius; x++)
@@ -50,9 +49,8 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
                 TerrainChunks.Add(tc);
             }
         //}
-        sw.Stop();
-        Debug.Log($"Terrain generation took {sw.ElapsedMilliseconds}ms");
         OnTerrainGenerated?.Invoke();
+        TerrainGeneration.End();
     }
 
     private TerrainChunk SpawnTerrainChunk(Vector3 position)
