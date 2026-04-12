@@ -23,6 +23,7 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     public NoiseType NoiseType = NoiseType.Simple;
     public List<TerrainChunk> TerrainChunks = new();
     public event Action OnTerrainGenerated;
+    public TerrainChunk LastChunk;
     
     private Camera _camera;
     private TerrainChunk _closestChunk;
@@ -48,12 +49,24 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
                 var position = center + new Vector3(0, 0, z * (ChunkSize - 1));
                 var tc = SpawnTerrainChunk(position);
                 TerrainChunks.Add(tc);
+                LastChunk = tc;
             }
         //}
         OnTerrainGenerated?.Invoke();
         TerrainGeneration.End();
     }
 
+    public void AddTerrainChunk()
+    {
+        var tc = SpawnTerrainChunk(LastChunk.transform.position + new Vector3(0, 0, ChunkSize - 1));
+        TerrainChunks.Add(tc);
+        LastChunk = tc;
+        var firstChunk = TerrainChunks[0];
+        TerrainChunks.Remove(TerrainChunks[0]);
+        Destroy(firstChunk.gameObject);
+        OnTerrainGenerated?.Invoke();
+    }
+    
     private TerrainChunk SpawnTerrainChunk(Vector3 position)
     {
         var go = Instantiate(TerrainChunkPrefab, transform);

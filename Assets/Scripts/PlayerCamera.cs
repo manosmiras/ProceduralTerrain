@@ -30,6 +30,8 @@ public class PlayerCamera : MonoBehaviour
 
     private void GenerateCameraPath()
     {
+        Debug.Log("Generating camera path");
+        // TODO: Take lod into account? 
         var terrain = ProceduralTerrain.Instance;
         var chunkCount = terrain.TerrainChunks.Count;
         var pointsPerChunk = (terrain.ChunkSize + PathSimplification - 1) / PathSimplification;
@@ -60,6 +62,12 @@ public class PlayerCamera : MonoBehaviour
         {
             Debug.DrawLine(_cameraPath[i], _cameraPath[i + 1], Color.red);
         }
+        var dist = Vector3.Distance(ProceduralTerrain.Instance.LastChunk.transform.position, transform.position);
+        if (dist <= ProceduralTerrain.Instance.ChunkSize / 2)
+        {
+            ProceduralTerrain.Instance.AddTerrainChunk();
+        }
+        Debug.Log($"Distance to last chunk: {dist}");
     }
     
     private void LateUpdate()
