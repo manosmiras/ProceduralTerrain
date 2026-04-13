@@ -44,7 +44,7 @@ public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
         TerrainChunks.Clear();
         //for (var x = -ChunkRadius; x <= ChunkRadius; x++)
         //{
-            for (var z = -ChunkRadius; z <= ChunkRadius; z++)
+            for (var z = -ChunkRadius; z < ChunkRadius; z++)
             {
                 var position = center + new Vector3(0, 0, z * (ChunkSize - 1));
                 var tc = SpawnTerrainChunk(position);
