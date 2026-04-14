@@ -1,4 +1,3 @@
-using System;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;
@@ -6,6 +5,7 @@ using UnityEngine.Splines;
 public class PlayerCamera : MonoBehaviour
 {
     public float Speed = 40f;
+    public int PathSamples = 8;
 
     private Spline _splinePath;
     private float3[] _cameraPath;
@@ -21,23 +21,25 @@ public class PlayerCamera : MonoBehaviour
     private void GenerateCameraPath()
     {
         Debug.Log("Generating camera path");
-        _cameraPath = GetPathForChunk(ProceduralTerrain.Instance.TerrainChunks[0], 4);
+        var chunk = ProceduralTerrain.Instance.Chunks[1, 0];
+        _cameraPath = GetPathForChunk(chunk, PathSamples);
         _splinePath = new Spline();
         _splinePath.AddRange(_cameraPath);
-        Debug.Log($"Camera path has {_cameraPath.Length} points");
     }
 
     private float3[] GetPathForChunk(TerrainChunk terrainChunk, int samples)
     {
         var path = new float3[samples];
         var terrain = ProceduralTerrain.Instance;
-        var x = terrain.ChunkSize / 2f;
+        var width = terrainChunk.MeshData.Width;
+        var height = terrainChunk.MeshData.Height;
+        var x = width / 2f;
 
         for (var i = 0; i < samples; i++)
         {
-            var z = terrain.ChunkSize - 1 - i * ((terrain.ChunkSize - 1) / (float)(samples - 1));
+            var z = height - 1 - i * ((height - 1) / (float)(samples - 1));
             var vertexZ = Mathf.RoundToInt(z);
-            var vertexIndex = (int)x + vertexZ * terrain.ChunkSize;
+            var vertexIndex = (int)x + vertexZ * height;
 
             path[i] = terrainChunk.transform.position + terrainChunk.MeshData.Vertices[vertexIndex];
         }
@@ -60,7 +62,7 @@ public class PlayerCamera : MonoBehaviour
         _progress += (Speed * Time.deltaTime) / GetApproxSplineLength();
         if (_progress >= 1.0f)
         {
-            ProceduralTerrain.Instance.AddTerrainChunk();
+            ProceduralTerrain.Instance.AddTerrainChunks();
             _progress = 0f;
             return;
         }
@@ -71,6 +73,6 @@ public class PlayerCamera : MonoBehaviour
     
     private float GetApproxSplineLength()
     {
-        return ProceduralTerrain.Instance.TerrainChunks.Count * ProceduralTerrain.Instance.ChunkSize;
+        return ProceduralTerrain.Instance.Chunks.GetLength(1) * ProceduralTerrain.Instance.ChunkSize;
     }
 }
