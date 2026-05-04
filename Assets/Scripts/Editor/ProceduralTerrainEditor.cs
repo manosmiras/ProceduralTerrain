@@ -28,7 +28,7 @@ namespace Editor
 
             if (GUILayout.Button("Generate"))
             {
-                terrain.Generate();
+                terrain.InitializeChunks();
             }
         }
     }

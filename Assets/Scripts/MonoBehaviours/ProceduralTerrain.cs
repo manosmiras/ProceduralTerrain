@@ -30,22 +30,23 @@ namespace MonoBehaviours
 
         protected void Start()
         {
-            Generate();
+            InitializeChunks();
         }
 
 
-        public void Generate()
+        public void InitializeChunks()
         {
             TerrainGeneration.Begin();
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
+            var centerX = ChunkRadius / 2;
             for (var x = 0; x < ChunkRadius; x++)
             {
                 for (var y = 0; y < ChunkRadius; y++)
                 {
                     var position = start + new Vector3(x * (ChunkSize - 1), 0, y * (ChunkSize - 1));
-                    var chunk = SpawnTerrainChunk(position, x == 1 ? 0 : 1);
+                    var chunk = SpawnTerrainChunk(position: position, lod: y);
                     Chunks[x, y] = chunk;
                 }
             }
@@ -53,10 +54,11 @@ namespace MonoBehaviours
             TerrainGeneration.End();
         }
 
-        public void AddTerrainChunks()
+        public void RegenerateChunks()
         {
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
+            
             // Shift everything up one row
             for (var y = 0; y < height - 1; y++)
             {
@@ -70,14 +72,32 @@ namespace MonoBehaviours
                     Chunks[x, y] = Chunks[x, y + 1];
                 }
             }
+            
             for (var x = 0; x < width; x++)
             {
                 var position = transform.position + new Vector3(x * (ChunkSize - 1), 0, (height - 1 + _generationCount) * (ChunkSize - 1));
                 var chunk = SpawnTerrainChunk(position, x == 1 ? 0 : 1);
                 Chunks[x, height - 1] = chunk;
             }
+            
             _generationCount++;
             OnTerrainGenerated?.Invoke();
+        }
+
+        public void UpdateLods()
+        {
+            var width = Chunks.GetLength(0);
+            var height = Chunks.GetLength(1);
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var chunk = Chunks[x, y];
+                    var newLod = Math.Max(0, chunk.Lod - 1);
+                    Debug.Log($"Updating lod for chunk {x}, {y}, it's lod is {chunk.Lod}, new lod is {newLod}");
+                    chunk.UpdateLod(newLod);
+                }
+            }
         }
     
         private TerrainChunk SpawnTerrainChunk(Vector3 position, int lod)

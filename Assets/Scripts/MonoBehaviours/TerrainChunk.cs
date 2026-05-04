@@ -1,4 +1,5 @@
 ﻿using Core;
+using TMPro;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -9,8 +10,10 @@ namespace MonoBehaviours
     {
         public MeshData MeshData;
         public float[,] HeightMap;
+        public int Lod;
         private MeshFilter _meshFilter;
         private MeshCollider _meshCollider;
+        private TextMeshPro _textMesh;
         private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("Terrain.Noise");
         private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("Terrain.Mesh");
 
@@ -18,12 +21,27 @@ namespace MonoBehaviours
         {
             _meshFilter = GetComponent<MeshFilter>();
             _meshCollider = GetComponent<MeshCollider>();
+            _textMesh = GetComponentInChildren<TextMeshPro>();
+        }
+
+        private void SetLabel(int lod)
+        {
+            _textMesh.text = $"LOD: {lod}";
         }
 
         public void Generate(int lod = 0)
         {
+            Lod = lod;
             HeightMap = GenerateHeightMap();
             MeshData = GenerateMesh(HeightMap, lod);
+            SetLabel(lod);
+        }
+
+        public void UpdateLod(int lod)
+        {
+            Lod = lod;
+            MeshData = GenerateMesh(HeightMap, lod);
+            SetLabel(lod);
         }
 
         private float[,] GenerateHeightMap()

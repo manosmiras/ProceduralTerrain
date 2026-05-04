@@ -14,6 +14,7 @@ namespace MonoBehaviours
         private TerrainChunk _chunk;
         private int _pathIndex;
         private float _progress;
+        private bool _shouldUpdateLods = true;
     
         private void OnEnable()
         {
@@ -61,10 +62,16 @@ namespace MonoBehaviours
             if (_splinePath == null || _splinePath.Count < 2)
                 return;
             _progress += (Speed * Time.deltaTime) / GetApproxSplineLength();
+            if (_progress >= 0.5f && _shouldUpdateLods)
+            {
+                ProceduralTerrain.Instance.UpdateLods();
+                _shouldUpdateLods = false;
+            }
             if (_progress >= 1.0f)
             {
-                ProceduralTerrain.Instance.AddTerrainChunks();
+                ProceduralTerrain.Instance.RegenerateChunks();
                 _progress = 0f;
+                _shouldUpdateLods = true;
                 return;
             }
             _splinePath.Evaluate(_progress, out var position, out var tangent, out var up);
