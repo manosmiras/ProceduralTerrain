@@ -2,45 +2,17 @@
 
 namespace Core
 {
-    public static class MeshGenerator
+    public class MeshGenerator
     {
-        public static MeshData GenerateTerrainMeshOld(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve,
-            int lod = 0)
+        private float _heightMultiplier;
+        private AnimationCurve _heightCurve;
+        public MeshGenerator(float heightMultiplier, AnimationCurve heightCurve)
         {
-            var width = heightMap.GetLength(0);
-            var height = heightMap.GetLength(1);
-            var topLeftX = (width - 1) / -2f;
-            var topLeftZ = (height - 1) / 2f;
-            // TODO: This assumes the chunk size lines up perfectly with the simplification step, need to fix
-            var meshSimplificationIncrement = lod == 0 ? 1 : lod * 2;
-            var verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
-
-            var meshData = new MeshData(verticesPerLine, verticesPerLine);
-            var vertexIndex = 0;
-
-            for (var y = 0; y < height; y += meshSimplificationIncrement)
-            {
-                for (var x = 0; x < width; x += meshSimplificationIncrement)
-                {
-                    var heightSample = heightMap[x, y];
-                    meshData.Vertices[vertexIndex] = new Vector3(topLeftX + x,
-                        (heightCurve.Evaluate(heightSample) + heightSample) * heightMultiplier, topLeftZ - y);
-                    meshData.Uvs[vertexIndex] = new Vector2(x / (float)width, y / (float)height);
-
-                    if (x < width - 1 && y < height - 1)
-                    {
-                        meshData.AddTriangle(vertexIndex, vertexIndex + verticesPerLine + 1, vertexIndex + verticesPerLine);
-                        meshData.AddTriangle(vertexIndex + verticesPerLine + 1, vertexIndex, vertexIndex + 1);
-                    }
-
-                    vertexIndex++;
-                }
-            }
-            return meshData;
+            _heightMultiplier = heightMultiplier;
+            _heightCurve = heightCurve;
         }
-    
-        public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve heightCurve,
-            int lod = 0)
+
+        public MeshData Generate(float[,] heightMap, int lod = 0)
         {
             var width = heightMap.GetLength(0);
             var height = heightMap.GetLength(1);
@@ -67,7 +39,7 @@ namespace Core
                     var heightSample = heightMap[sourceX, sourceY];
                     meshData.Vertices[vertexIndex] = new Vector3(
                         topLeftX + sourceX,
-                        (heightCurve.Evaluate(heightSample) + heightSample) * heightMultiplier,
+                        (_heightCurve.Evaluate(heightSample) + heightSample) * _heightMultiplier,
                         topLeftZ - sourceY
                     );
 

@@ -16,12 +16,25 @@ namespace MonoBehaviours
         private TextMeshPro _textMesh;
         private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("ProceduralTerrain.Noise");
         private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("ProceduralTerrain.Mesh");
+        private HeightMapGenerator _heightMapGenerator;
+        private MeshGenerator _meshGenerator;
 
         private void Awake()
         {
             _meshFilter = GetComponent<MeshFilter>();
             _meshCollider = GetComponent<MeshCollider>();
             _textMesh = GetComponentInChildren<TextMeshPro>();
+            var terrain = ProceduralTerrain.Instance;
+            _heightMapGenerator = new HeightMapGenerator(
+                width: terrain.ChunkSize,
+                height: terrain.ChunkSize,
+                scale: terrain.NoiseScale,
+                seed: terrain.Seed,
+                octaves: terrain.Octaves,
+                persistence: terrain.Persistence,
+                lacunarity: terrain.Lacunarity
+            );
+            _meshGenerator = new MeshGenerator(terrain.HeightMultiplier, terrain.HeightCurve);
         }
 
         private void SetLabel(int lod)
@@ -47,44 +60,15 @@ namespace MonoBehaviours
         private float[,] GenerateHeightMap()
         {
             NoiseMarker.Begin();
-            var terrain = ProceduralTerrain.Instance;
-            float[,] noise;
-            if (terrain.NoiseType == NoiseType.Simple)
-            {
-                noise = Noise.Perlin(
-                    terrain.ChunkSize,
-                    terrain.ChunkSize,
-                    terrain.NoiseScale,
-                    terrain.Seed,
-                    terrain.Octaves,
-                    terrain.Persistence,
-                    terrain.Lacunarity,
-                    transform.position
-                );
-            }
-            else
-            {
-                noise = Noise.PerlinFromJob(
-                    terrain.ChunkSize,
-                    terrain.ChunkSize,
-                    terrain.NoiseScale,
-                    terrain.Seed,
-                    terrain.Octaves,
-                    terrain.Persistence,
-                    terrain.Lacunarity,
-                    transform.position
-                );
-            }
+            var heightMap = _heightMapGenerator.Generate(transform.position);
             NoiseMarker.End();
-            return noise;
+            return heightMap;
         }
 
-        private MeshData GenerateMesh(float[,] noise, int lod)
+        private MeshData GenerateMesh(float[,] heightMap, int lod)
         {
             MeshMarker.Begin();
-            var terrain = ProceduralTerrain.Instance;
-            var meshData =
-                MeshGenerator.GenerateTerrainMesh(noise, terrain.HeightMultiplier, terrain.HeightCurve, lod);
+            var meshData = _meshGenerator.Generate(heightMap, lod);
             var mesh = meshData.CreateMesh();
             _meshFilter.sharedMesh = mesh;
             //_meshCollider.sharedMesh = mesh;
