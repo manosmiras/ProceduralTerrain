@@ -26,42 +26,43 @@ namespace Core
             var verticesPerLineY = Mathf.CeilToInt((height - 1) / (float)step) + 1;
 
             var meshData = new MeshData(verticesPerLineX, verticesPerLineY);
+            
+            var count = verticesPerLineX * verticesPerLineY;
 
-            for (var y = 0; y < verticesPerLineY; y++)
+            for (var index = 0; index < count; index++)
             {
+                var x = index % verticesPerLineX;
+                var y = index / verticesPerLineX;
+
+                var sourceX = Mathf.Min(x * step, width - 1);
                 var sourceY = Mathf.Min(y * step, height - 1);
 
-                for (var x = 0; x < verticesPerLineX; x++)
+                var heightSample = heightMap[sourceX, sourceY];
+
+                meshData.Vertices[index] = new Vector3(
+                    topLeftX + sourceX,
+                    (_heightCurve.Evaluate(heightSample) + heightSample) * _heightMultiplier,
+                    topLeftZ - sourceY
+                );
+
+                meshData.Uvs[index] = new Vector2(
+                    sourceX / (float)(width - 1),
+                    sourceY / (float)(height - 1)
+                );
+
+                if (x < verticesPerLineX - 1 && y < verticesPerLineY - 1)
                 {
-                    var sourceX = Mathf.Min(x * step, width - 1);
-                    var vertexIndex = x + y * verticesPerLineX;
-
-                    var heightSample = heightMap[sourceX, sourceY];
-                    meshData.Vertices[vertexIndex] = new Vector3(
-                        topLeftX + sourceX,
-                        (_heightCurve.Evaluate(heightSample) + heightSample) * _heightMultiplier,
-                        topLeftZ - sourceY
+                    meshData.AddTriangle(
+                        index,
+                        index + verticesPerLineX + 1,
+                        index + verticesPerLineX
                     );
 
-                    meshData.Uvs[vertexIndex] = new Vector2(
-                        sourceX / (float)(width - 1),
-                        sourceY / (float)(height - 1)
+                    meshData.AddTriangle(
+                        index + verticesPerLineX + 1,
+                        index,
+                        index + 1
                     );
-
-                    if (x < verticesPerLineX - 1 && y < verticesPerLineY - 1)
-                    {
-                        meshData.AddTriangle(
-                            vertexIndex,
-                            vertexIndex + verticesPerLineX + 1,
-                            vertexIndex + verticesPerLineX
-                        );
-
-                        meshData.AddTriangle(
-                            vertexIndex + verticesPerLineX + 1,
-                            vertexIndex,
-                            vertexIndex + 1
-                        );
-                    }
                 }
             }
 
