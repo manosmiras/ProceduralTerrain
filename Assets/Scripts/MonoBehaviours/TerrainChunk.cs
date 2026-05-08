@@ -57,6 +57,7 @@ namespace MonoBehaviours
 
         public void UpdateLod(int lod)
         {
+            if (Lod == lod && MeshData != null) return;
             Lod = lod;
             MeshData = GenerateMesh(HeightMap, lod);
             SetLabel(lod);

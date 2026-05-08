@@ -41,7 +41,7 @@ namespace MonoBehaviours
                 for (var y = 0; y < ChunkRadius; y++)
                 {
                     var position = start + new Vector3(x * (ChunkSize - 1), 0, y * (ChunkSize - 1));
-                    var chunk = SpawnTerrainChunk(position: position, lod: y);
+                    var chunk = SpawnTerrainChunk(position: position, lod: Math.Max(0, y - 1));
                     Chunks[x, y] = chunk;
                 }
             }
@@ -71,11 +71,12 @@ namespace MonoBehaviours
             for (var x = 0; x < width; x++)
             {
                 var position = transform.position + new Vector3(x * (ChunkSize - 1), 0, (height - 1 + _generationCount) * (ChunkSize - 1));
-                var chunk = SpawnTerrainChunk(position, x == 1 ? 0 : 1);
+                var chunk = SpawnTerrainChunk(position, Math.Max(0, height - 2));
                 Chunks[x, height - 1] = chunk;
             }
             
             _generationCount++;
+            UpdateLods();
             OnTerrainGenerated?.Invoke();
         }
 
@@ -88,8 +89,7 @@ namespace MonoBehaviours
                 for (var x = 0; x < width; x++)
                 {
                     var chunk = Chunks[x, y];
-                    var newLod = Math.Max(0, chunk.Lod - 1);
-                    Debug.Log($"Updating lod for chunk {x}, {y}, it's lod is {chunk.Lod}, new lod is {newLod}");
+                    var newLod = Math.Max(0, y - 1);
                     chunk.UpdateLod(newLod);
                 }
             }
