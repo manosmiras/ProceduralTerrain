@@ -14,8 +14,8 @@ namespace MonoBehaviours
         private MeshFilter _meshFilter;
         private MeshCollider _meshCollider;
         private TextMeshPro _textMesh;
-        private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("Terrain.Noise");
-        private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("Terrain.Mesh");
+        private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("ProceduralTerrain.Noise");
+        private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("ProceduralTerrain.Mesh");
 
         private void Awake()
         {

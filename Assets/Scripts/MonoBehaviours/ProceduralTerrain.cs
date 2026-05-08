@@ -25,14 +25,13 @@ namespace MonoBehaviours
         public TerrainChunk[,] Chunks;
         public event Action OnTerrainGenerated;
     
-        private static readonly ProfilerMarker TerrainGeneration = new ProfilerMarker("Terrain.Generation");
+        private static readonly ProfilerMarker TerrainGeneration = new ProfilerMarker("ProceduralTerrain.Generation");
         private int _generationCount = 1;
 
         protected void Start()
         {
             InitializeChunks();
         }
-
 
         public void InitializeChunks()
         {
