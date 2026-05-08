@@ -44,7 +44,7 @@ namespace Core
             var length = _width * _height;
             var result = new NativeArray<float>(length, Allocator.TempJob);
 
-            var noiseJob = new NoiseJob
+            var noiseJob = new HeightMapJob
             {
                 Width = _width,
                 Height = _height,
@@ -53,7 +53,7 @@ namespace Core
                 Persistence = _persistence,
                 Lacunarity = _lacunarity,
                 OctaveOffsets = octaveOffsets,
-                Heights = result
+                HeightMap = result
             };
 
             var handle = noiseJob.ScheduleParallel(length, 64, default);

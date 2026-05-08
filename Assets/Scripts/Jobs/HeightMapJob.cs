@@ -6,7 +6,7 @@ using Unity.Mathematics;
 namespace Jobs
 {
     [BurstCompile]
-    public struct NoiseJob : IJobFor
+    public struct HeightMapJob : IJobFor
     {
         [ReadOnly] public int Width;
         [ReadOnly] public int Height;
@@ -17,7 +17,7 @@ namespace Jobs
         [ReadOnly] public float2 Offset;
         [ReadOnly] public NativeArray<float2> OctaveOffsets;
 
-        [WriteOnly] public NativeArray<float> Heights;
+        [WriteOnly] public NativeArray<float> HeightMap;
 
         public void Execute(int index)
         {
@@ -43,7 +43,7 @@ namespace Jobs
                 frequency *= Lacunarity;
             }
 
-            Heights[index] = noiseHeight;
+            HeightMap[index] = noiseHeight;
         }
     }
 }
