@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace MonoBehaviours
 {
-    public enum NoiseType { Simple, Job }
-
     [ExecuteInEditMode]
     public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     {
@@ -21,7 +19,6 @@ namespace MonoBehaviours
         public int ChunkSize = 256;
         public int ChunkRadius = 2;
         public GameObject TerrainChunkPrefab;
-        public NoiseType NoiseType = NoiseType.Simple;
         public TerrainChunk[,] Chunks;
         public event Action OnTerrainGenerated;
     
@@ -39,7 +36,6 @@ namespace MonoBehaviours
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
-            var centerX = ChunkRadius / 2;
             for (var x = 0; x < ChunkRadius; x++)
             {
                 for (var y = 0; y < ChunkRadius; y++)
