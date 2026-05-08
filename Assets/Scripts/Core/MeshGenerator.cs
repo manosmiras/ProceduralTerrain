@@ -32,7 +32,7 @@ namespace Core
             for (var index = 0; index < count; index++)
             {
                 var x = index % verticesPerLineX;
-                var y = index / verticesPerLineX;
+                var y = index / verticesPerLineY;
 
                 var sourceX = Mathf.Min(x * step, width - 1);
                 var sourceY = Mathf.Min(y * step, height - 1);
