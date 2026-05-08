@@ -28,21 +28,20 @@ namespace Core
             _lacunarity = lacunarity;
         }
         
-        public float[,] Generate(Vector3 offset)
+        public NativeArray<float> Generate(Vector3 offset)
         {
             var rng = new System.Random(_seed);
             var octaveOffsets = new NativeArray<float2>(_octaves, Allocator.TempJob);
-            float maxPossibleHeight = 0;
+            float maxPossibleHeight = 1 / (1 - _persistence);
             for (var i = 0; i < _octaves; i++)
             {
                 var offsetX = rng.Next(-100000, 100000) + offset.x;
                 var offsetY = rng.Next(-100000, 100000) - offset.z;
                 octaveOffsets[i] = new float2(offsetX, offsetY);
-                maxPossibleHeight = 1 / (1 - _persistence);
             }
 
             var length = _width * _height;
-            var result = new NativeArray<float>(length, Allocator.TempJob);
+            var result = new NativeArray<float>(length, Allocator.Persistent);
 
             var noiseJob = new HeightMapJob
             {
@@ -59,30 +58,18 @@ namespace Core
             var handle = noiseJob.ScheduleParallel(length, 64, default);
             handle.Complete();
         
-            var noise = new float[_width, _height];
-            for (var y = 0; y < _height; y++)
-            {
-                for (var x = 0; x < _width; x++)
-                {
-                    noise[x, y] = result[x + y * _width];
-                }
-            }
-            result.Dispose();
             octaveOffsets.Dispose();
 
-            return Normalize(noise, maxPossibleHeight);
+            Normalize(result, maxPossibleHeight);
+            return result;
         }
         
-        private static float[,] Normalize(float[,] heights, float maxHeight)
+        private static void Normalize(NativeArray<float> heights, float maxHeight)
         {
-            for (var y = 0; y < heights.GetLength(0); y++)
+            for (var i = 0; i < heights.Length; i++)
             {
-                for (var x = 0; x < heights.GetLength(1); x++)
-                {
-                    heights[x, y] /= maxHeight;
-                }
+                heights[i] /= maxHeight;
             }
-            return heights;
         }
     }
 }

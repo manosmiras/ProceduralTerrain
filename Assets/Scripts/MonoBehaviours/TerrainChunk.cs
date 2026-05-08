@@ -1,5 +1,6 @@
 ﻿using Core;
 using TMPro;
+using Unity.Collections;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace MonoBehaviours
     public class TerrainChunk : MonoBehaviour
     {
         public MeshData MeshData;
-        public float[,] HeightMap;
+        public NativeArray<float> HeightMap;
         public int Lod;
         private MeshFilter _meshFilter;
         private MeshCollider _meshCollider;
@@ -45,6 +46,10 @@ namespace MonoBehaviours
         public void Generate(int lod = 0)
         {
             Lod = lod;
+            if (HeightMap.IsCreated)
+            {
+                HeightMap.Dispose();
+            }
             HeightMap = GenerateHeightMap();
             MeshData = GenerateMesh(HeightMap, lod);
             SetLabel(lod);
@@ -57,7 +62,7 @@ namespace MonoBehaviours
             SetLabel(lod);
         }
 
-        private float[,] GenerateHeightMap()
+        private NativeArray<float> GenerateHeightMap()
         {
             NoiseMarker.Begin();
             var heightMap = _heightMapGenerator.Generate(transform.position);
@@ -65,15 +70,24 @@ namespace MonoBehaviours
             return heightMap;
         }
 
-        private MeshData GenerateMesh(float[,] heightMap, int lod)
+        private MeshData GenerateMesh(NativeArray<float> heightMap, int lod)
         {
             MeshMarker.Begin();
-            var meshData = _meshGenerator.Generate(heightMap, lod);
+            var terrain = ProceduralTerrain.Instance;
+            var meshData = _meshGenerator.Generate(heightMap, terrain.ChunkSize, terrain.ChunkSize, lod);
             var mesh = meshData.CreateMesh();
             _meshFilter.sharedMesh = mesh;
             //_meshCollider.sharedMesh = mesh;
             MeshMarker.End();
             return meshData;
+        }
+
+        private void OnDestroy()
+        {
+            if (HeightMap.IsCreated)
+            {
+                HeightMap.Dispose();
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Collections;
+using UnityEngine;
 
 namespace Core
 {
@@ -12,11 +13,8 @@ namespace Core
             _heightCurve = heightCurve;
         }
 
-        public MeshData Generate(float[,] heightMap, int lod = 0)
+        public MeshData Generate(NativeArray<float> heightMap, int width, int height, int lod = 0)
         {
-            var width = heightMap.GetLength(0);
-            var height = heightMap.GetLength(1);
-
             var topLeftX = (width - 1) / -2f;
             var topLeftZ = (height - 1) / 2f;
 
@@ -32,12 +30,12 @@ namespace Core
             for (var index = 0; index < count; index++)
             {
                 var x = index % verticesPerLineX;
-                var y = index / verticesPerLineY;
+                var y = index / verticesPerLineX;
 
                 var sourceX = Mathf.Min(x * step, width - 1);
                 var sourceY = Mathf.Min(y * step, height - 1);
 
-                var heightSample = heightMap[sourceX, sourceY];
+                var heightSample = heightMap[sourceX + sourceY * width];
 
                 meshData.Vertices[index] = new Vector3(
                     topLeftX + sourceX,
