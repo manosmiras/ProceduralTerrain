@@ -87,7 +87,7 @@ namespace MonoBehaviours
                 MeshGenerator.GenerateTerrainMesh(noise, terrain.HeightMultiplier, terrain.HeightCurve, lod);
             var mesh = meshData.CreateMesh();
             _meshFilter.sharedMesh = mesh;
-            _meshCollider.sharedMesh = mesh;
+            //_meshCollider.sharedMesh = mesh;
             MeshMarker.End();
             return meshData;
         }
