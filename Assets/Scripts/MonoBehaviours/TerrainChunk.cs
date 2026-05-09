@@ -14,7 +14,6 @@ namespace MonoBehaviours
         public int Lod;
         private MeshFilter _meshFilter;
         private MeshCollider _meshCollider;
-        private TextMeshPro _textMesh;
         private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("ProceduralTerrain.Noise");
         private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("ProceduralTerrain.Mesh");
         private HeightMapGenerator _heightMapGenerator;
@@ -24,7 +23,6 @@ namespace MonoBehaviours
         {
             _meshFilter = GetComponent<MeshFilter>();
             _meshCollider = GetComponent<MeshCollider>();
-            _textMesh = GetComponentInChildren<TextMeshPro>();
             var terrain = ProceduralTerrain.Instance;
             _heightMapGenerator = new HeightMapGenerator(
                 width: terrain.ChunkSize,
@@ -36,11 +34,6 @@ namespace MonoBehaviours
                 lacunarity: terrain.Lacunarity
             );
             _meshGenerator = new MeshGenerator(terrain.HeightMultiplier, terrain.HeightCurve);
-        }
-
-        private void SetLabel(int lod)
-        {
-            _textMesh.text = $"LOD: {lod}";
         }
 
         public void Generate(int lod = 0)
@@ -56,7 +49,6 @@ namespace MonoBehaviours
             }
             HeightMap = GenerateHeightMap();
             MeshData = GenerateMesh(HeightMap, lod);
-            SetLabel(lod);
         }
 
         public void UpdateLod(int lod)
@@ -73,7 +65,6 @@ namespace MonoBehaviours
             }
             
             MeshData = GenerateMesh(HeightMap, lod);
-            SetLabel(lod);
         }
 
         private NativeArray<float> GenerateHeightMap()
