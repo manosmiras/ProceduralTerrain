@@ -1,12 +1,15 @@
-﻿using Unity.Collections;
+﻿using Jobs;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace Core
 {
     public class MeshGenerator
     {
-        private float _heightMultiplier;
-        private AnimationCurve _heightCurve;
+        private readonly float _heightMultiplier;
+        private readonly AnimationCurve _heightCurve;
+
         public MeshGenerator(float heightMultiplier, AnimationCurve heightCurve)
         {
             _heightMultiplier = heightMultiplier;
@@ -24,45 +27,34 @@ namespace Core
             var verticesPerLineY = Mathf.CeilToInt((height - 1) / (float)step) + 1;
 
             var meshData = new MeshData(verticesPerLineX, verticesPerLineY);
-            
-            var count = verticesPerLineX * verticesPerLineY;
 
-            for (var index = 0; index < count; index++)
+            var bakedCurve = new NativeArray<float>(256, Allocator.TempJob);
+            for (var i = 0; i < bakedCurve.Length; i++)
             {
-                var x = index % verticesPerLineX;
-                var y = index / verticesPerLineX;
-
-                var sourceX = Mathf.Min(x * step, width - 1);
-                var sourceY = Mathf.Min(y * step, height - 1);
-
-                var heightSample = heightMap[sourceX + sourceY * width];
-
-                meshData.Vertices[index] = new Vector3(
-                    topLeftX + sourceX,
-                    (_heightCurve.Evaluate(heightSample) + heightSample) * _heightMultiplier,
-                    topLeftZ - sourceY
-                );
-
-                meshData.Uvs[index] = new Vector2(
-                    sourceX / (float)(width - 1),
-                    sourceY / (float)(height - 1)
-                );
-
-                if (x < verticesPerLineX - 1 && y < verticesPerLineY - 1)
-                {
-                    meshData.AddTriangle(
-                        index,
-                        index + verticesPerLineX + 1,
-                        index + verticesPerLineX
-                    );
-
-                    meshData.AddTriangle(
-                        index + verticesPerLineX + 1,
-                        index,
-                        index + 1
-                    );
-                }
+                bakedCurve[i] = _heightCurve.Evaluate(i / (float)(bakedCurve.Length - 1));
             }
+
+            var meshJob = new MeshJob
+            {
+                VerticesPerLineX = verticesPerLineX,
+                VerticesPerLineY = verticesPerLineY,
+                Width = width,
+                Height = height,
+                Step = step,
+                TopLeftX = topLeftX,
+                TopLeftZ = topLeftZ,
+                HeightMultiplier = _heightMultiplier,
+                HeightCurve = bakedCurve,
+                HeightMap = heightMap,
+                Vertices = meshData.Vertices,
+                Uvs = meshData.Uvs,
+                Triangles = meshData.Triangles
+            };
+            
+            var handle = meshJob.ScheduleParallel(verticesPerLineX * verticesPerLineY, 64, default);
+            handle.Complete();
+            
+            bakedCurve.Dispose();
 
             return meshData;
         }

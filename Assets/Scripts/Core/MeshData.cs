@@ -1,44 +1,46 @@
-﻿using UnityEngine;
+﻿using System;
+using Unity.Collections;
+using Unity.Mathematics;
+using UnityEngine;
 
 namespace Core
 {
-    public class MeshData
+    public struct MeshData : IDisposable
     {
-        public readonly Vector3[] Vertices;
-        public readonly Vector2[] Uvs;
+        public NativeArray<float3> Vertices;
+        public NativeArray<float2> Uvs;
+        public NativeArray<int> Triangles;
         public readonly int Width;
         public readonly int Height;
-
-        private readonly int[] _triangles;
-        private int _triangleIndex;
+        public bool IsCreated => Vertices.IsCreated;
 
         public MeshData(int width, int height)
         {
             Width = width;
             Height = height;
-            Vertices = new Vector3[width * height];
-            Uvs = new Vector2[width * height];
-            _triangles = new int[(width - 1) * (height - 1) * 6];
-        }
-
-        public void AddTriangle(int a, int b, int c)
-        {
-            _triangles[_triangleIndex] = a;
-            _triangles[_triangleIndex + 1] = b;
-            _triangles[_triangleIndex + 2] = c;
-            _triangleIndex += 3;
+            Vertices = new NativeArray<float3>(width * height, Allocator.Persistent);
+            Uvs = new NativeArray<float2>(width * height, Allocator.Persistent);
+            Triangles = new NativeArray<int>((width - 1) * (height - 1) * 6, Allocator.Persistent);
         }
 
         public Mesh CreateMesh()
         {
-            var mesh = new Mesh
-            {
-                vertices = Vertices,
-                triangles = _triangles,
-                uv = Uvs
-            };
+            var mesh = new Mesh();
+            mesh.SetVertices(Vertices);
+            mesh.SetUVs(0, Uvs);
+            mesh.SetIndices(Triangles, MeshTopology.Triangles, 0);
             mesh.RecalculateNormals();
             return mesh;
+        }
+        
+        public void Dispose()
+        {
+            if (Vertices.IsCreated)
+                Vertices.Dispose();
+            if (Uvs.IsCreated)
+                Uvs.Dispose();
+            if (Triangles.IsCreated)
+                Triangles.Dispose();
         }
     }
 }

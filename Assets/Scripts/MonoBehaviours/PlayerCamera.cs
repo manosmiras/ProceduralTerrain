@@ -24,7 +24,8 @@ namespace MonoBehaviours
         private void GenerateCameraPath()
         {
             Debug.Log("Generating camera path");
-            var chunk = ProceduralTerrain.Instance.Chunks[1, 0];
+            var centerX = ProceduralTerrain.Instance.Chunks.GetLength(0) / 2;
+            var chunk = ProceduralTerrain.Instance.Chunks[centerX, 0];
             _cameraPath = GetPathForChunk(chunk, PathSamples);
             _splinePath = new Spline();
             _splinePath.AddRange(_cameraPath);
@@ -41,9 +42,9 @@ namespace MonoBehaviours
             {
                 var z = height - 1 - i * ((height - 1) / (float)(samples - 1));
                 var vertexZ = Mathf.RoundToInt(z);
-                var vertexIndex = (int)x + vertexZ * height;
+                var vertexIndex = (int)x + vertexZ * width;
 
-                path[i] = terrainChunk.transform.position + terrainChunk.MeshData.Vertices[vertexIndex];
+                path[i] = (float3)terrainChunk.transform.position + terrainChunk.MeshData.Vertices[vertexIndex];
             }
 
             return path;

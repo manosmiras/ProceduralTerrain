@@ -50,6 +50,10 @@ namespace MonoBehaviours
             {
                 HeightMap.Dispose();
             }
+            if (MeshData.IsCreated)
+            {
+                MeshData.Dispose();
+            }
             HeightMap = GenerateHeightMap();
             MeshData = GenerateMesh(HeightMap, lod);
             SetLabel(lod);
@@ -57,8 +61,11 @@ namespace MonoBehaviours
 
         public void UpdateLod(int lod)
         {
-            if (Lod == lod && MeshData != null) return;
             Lod = lod;
+            if (MeshData.IsCreated)
+            {
+                MeshData.Dispose();
+            }
             MeshData = GenerateMesh(HeightMap, lod);
             SetLabel(lod);
         }
@@ -88,6 +95,11 @@ namespace MonoBehaviours
             if (HeightMap.IsCreated)
             {
                 HeightMap.Dispose();
+            }
+
+            if (MeshData.IsCreated)
+            {
+                MeshData.Dispose();
             }
         }
     }
