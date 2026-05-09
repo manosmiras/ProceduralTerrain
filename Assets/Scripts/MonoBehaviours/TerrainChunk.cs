@@ -66,6 +66,12 @@ namespace MonoBehaviours
             {
                 MeshData.Dispose();
             }
+
+            if (!HeightMap.IsCreated)
+            {
+                HeightMap = GenerateHeightMap();
+            }
+            
             MeshData = GenerateMesh(HeightMap, lod);
             SetLabel(lod);
         }
@@ -90,7 +96,17 @@ namespace MonoBehaviours
             return meshData;
         }
 
+        private void OnDisable()
+        {
+            DisposeNativeData();
+        }
+
         private void OnDestroy()
+        {
+            DisposeNativeData();
+        }
+
+        private void DisposeNativeData()
         {
             if (HeightMap.IsCreated)
             {

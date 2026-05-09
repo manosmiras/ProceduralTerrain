@@ -15,7 +15,7 @@ namespace Core
         private readonly int _octaves;
         private readonly float _persistence;
         private readonly float _lacunarity;
-        
+
         public HeightMapGenerator(int width, int height, float scale, int seed = 1, int octaves = 8,
             float persistence = 0.5f, float lacunarity = 2f)
         {
@@ -27,7 +27,7 @@ namespace Core
             _persistence = persistence;
             _lacunarity = lacunarity;
         }
-        
+
         public NativeArray<float> Generate(Vector3 offset)
         {
             var rng = new System.Random(_seed);
@@ -43,27 +43,44 @@ namespace Core
             var length = _width * _height;
             var result = new NativeArray<float>(length, Allocator.Persistent);
 
-            var noiseJob = new HeightMapJob
+            try
             {
-                Width = _width,
-                Height = _height,
-                Scale = _scale,
-                Octaves = _octaves,
-                Persistence = _persistence,
-                Lacunarity = _lacunarity,
-                OctaveOffsets = octaveOffsets,
-                HeightMap = result
-            };
+                var noiseJob = new HeightMapJob
+                {
+                    Width = _width,
+                    Height = _height,
+                    Scale = _scale,
+                    Octaves = _octaves,
+                    Persistence = _persistence,
+                    Lacunarity = _lacunarity,
+                    OctaveOffsets = octaveOffsets,
+                    HeightMap = result
+                };
 
-            var handle = noiseJob.ScheduleParallel(length, 64, default);
-            handle.Complete();
-        
-            octaveOffsets.Dispose();
+                var handle = noiseJob.ScheduleParallel(length, 64, default);
+                handle.Complete();
 
-            Normalize(result, maxPossibleHeight);
-            return result;
+                Normalize(result, maxPossibleHeight);
+                return result;
+            }
+            catch
+            {
+                if (result.IsCreated)
+                {
+                    result.Dispose();
+                }
+
+                throw;
+            }
+            finally
+            {
+                if (octaveOffsets.IsCreated)
+                {
+                    octaveOffsets.Dispose();
+                }
+            }
         }
-        
+
         private static void Normalize(NativeArray<float> heights, float maxHeight)
         {
             for (var i = 0; i < heights.Length; i++)

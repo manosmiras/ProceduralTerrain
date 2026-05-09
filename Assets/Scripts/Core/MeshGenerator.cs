@@ -29,34 +29,51 @@ namespace Core
             var meshData = new MeshData(verticesPerLineX, verticesPerLineY);
 
             var bakedCurve = new NativeArray<float>(256, Allocator.TempJob);
-            for (var i = 0; i < bakedCurve.Length; i++)
+            try
             {
-                bakedCurve[i] = _heightCurve.Evaluate(i / (float)(bakedCurve.Length - 1));
+                for (var i = 0; i < bakedCurve.Length; i++)
+                {
+                    bakedCurve[i] = _heightCurve.Evaluate(i / (float)(bakedCurve.Length - 1));
+                }
+
+                var meshJob = new MeshJob
+                {
+                    VerticesPerLineX = verticesPerLineX,
+                    VerticesPerLineY = verticesPerLineY,
+                    Width = width,
+                    Height = height,
+                    Step = step,
+                    TopLeftX = topLeftX,
+                    TopLeftZ = topLeftZ,
+                    HeightMultiplier = _heightMultiplier,
+                    HeightCurve = bakedCurve,
+                    HeightMap = heightMap,
+                    Vertices = meshData.Vertices,
+                    Uvs = meshData.Uvs,
+                    Triangles = meshData.Triangles
+                };
+
+                var handle = meshJob.ScheduleParallel(verticesPerLineX * verticesPerLineY, 64, default);
+                handle.Complete();
+
+                return meshData;
             }
-
-            var meshJob = new MeshJob
+            catch
             {
-                VerticesPerLineX = verticesPerLineX,
-                VerticesPerLineY = verticesPerLineY,
-                Width = width,
-                Height = height,
-                Step = step,
-                TopLeftX = topLeftX,
-                TopLeftZ = topLeftZ,
-                HeightMultiplier = _heightMultiplier,
-                HeightCurve = bakedCurve,
-                HeightMap = heightMap,
-                Vertices = meshData.Vertices,
-                Uvs = meshData.Uvs,
-                Triangles = meshData.Triangles
-            };
-            
-            var handle = meshJob.ScheduleParallel(verticesPerLineX * verticesPerLineY, 64, default);
-            handle.Complete();
-            
-            bakedCurve.Dispose();
+                if (meshData.IsCreated)
+                {
+                    meshData.Dispose();
+                }
 
-            return meshData;
+                throw;
+            }
+            finally
+            {
+                if (bakedCurve.IsCreated)
+                {
+                    bakedCurve.Dispose();
+                }
+            }
         }
     }
 }
