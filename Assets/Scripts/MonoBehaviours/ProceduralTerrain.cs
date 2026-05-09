@@ -14,8 +14,6 @@ namespace MonoBehaviours
         public float Persistence = 0.5f;
         public float Lacunarity = 2f;
         public AnimationCurve HeightCurve;
-        [Range(0, 6)]
-        public int Lod = 0;
         public int ChunkSize = 256;
         public int ChunkRadius = 2;
         public GameObject TerrainChunkPrefab;
