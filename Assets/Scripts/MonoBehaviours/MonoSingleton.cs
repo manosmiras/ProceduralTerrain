@@ -11,7 +11,13 @@ namespace MonoBehaviours
             get
             {
                 if (instance == null)
+                {
                     instance = FindFirstObjectByType<T>();
+                    if (instance == null)
+                    {
+                        Debug.LogError($"[MonoSingleton] An instance of {typeof(T)} is needed in the scene, but there is none.");
+                    }
+                }
 
                 return instance;
             }
@@ -21,11 +27,20 @@ namespace MonoBehaviours
         {
             if (instance != null && instance != this)
             {
+                Debug.LogWarning($"[MonoSingleton] Duplicate instance of {typeof(T)} on {gameObject.name} was destroyed.");
                 Destroy(gameObject);
                 return;
             }
 
             instance = this as T;
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (instance == this)
+            {
+                instance = null;
+            }
         }
     }
 }

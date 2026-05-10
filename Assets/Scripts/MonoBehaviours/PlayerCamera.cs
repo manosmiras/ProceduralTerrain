@@ -14,7 +14,7 @@ namespace MonoBehaviours
             var terrain = ProceduralTerrain.Instance;
             var centerX = terrain.Chunks.GetLength(0) / 2;
             var chunk = terrain.Chunks[centerX, 0];
-            transform.position = chunk.transform.position + new Vector3(0, terrain.HeightMultiplier, 0);
+            transform.position = chunk.transform.position + new Vector3(0, terrain.HeightMultiplier * 2f, 0);
             _distanceTraveled = 0;
         }
 

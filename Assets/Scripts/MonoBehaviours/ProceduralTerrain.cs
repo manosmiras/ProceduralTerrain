@@ -24,16 +24,24 @@ namespace MonoBehaviours
         private int _generationCount = 1;
         private PlayerCamera _playerCamera;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            InitializeChunks();
+        }
+
         protected void Start()
         {
-            InitializeChunks();
             _playerCamera = FindFirstObjectByType<PlayerCamera>();
             _playerCamera.TraversedChunk += RegenerateChunks;
         }
 
         private void OnDisable()
         {
-            _playerCamera.TraversedChunk -= RegenerateChunks;
+            if (_playerCamera != null)
+            {
+                _playerCamera.TraversedChunk -= RegenerateChunks;
+            }
         }
 
         public void InitializeChunks()
@@ -47,14 +55,14 @@ namespace MonoBehaviours
                 for (var y = 0; y < ChunkRadius; y++)
                 {
                     var position = start + new Vector3(x * (ChunkSize - 1), 0, y * (ChunkSize - 1));
-                    var chunk = SpawnTerrainChunk(position: position, lod: Math.Max(0, y - 1));
+                    var chunk = SpawnTerrainChunk(position: position, lod: GetLod(x, y));
                     Chunks[x, y] = chunk;
                 }
             }
             InitializeChunksMarker.End();
         }
 
-        public void RegenerateChunks()
+        private void RegenerateChunks()
         {
             RegenerateChunksMarker.Begin();
             var width = Chunks.GetLength(0);
@@ -85,7 +93,7 @@ namespace MonoBehaviours
             UpdateLods();
         }
 
-        public void UpdateLods()
+        private void UpdateLods()
         {
             UpdateLodsMarker.Begin();
             var width = Chunks.GetLength(0);
@@ -95,11 +103,18 @@ namespace MonoBehaviours
                 for (var x = 0; x < width; x++)
                 {
                     var chunk = Chunks[x, y];
-                    var newLod = Math.Max(0, y - 1);
-                    chunk.UpdateLod(newLod);
+                    chunk.UpdateLod(GetLod(x, y));
                 }
             }
             UpdateLodsMarker.End();
+        }
+        
+        private int GetLod(int x, int y)
+        {
+            var centerX = ChunkRadius / 2;
+            var lodY = Math.Max(1, y - 1);
+            var lodX = Math.Max(1, Math.Abs(centerX - x));
+            return Math.Max(lodX, lodY);
         }
     
         private TerrainChunk SpawnTerrainChunk(Vector3 position, int lod)

@@ -82,7 +82,6 @@ namespace MonoBehaviours
             var meshData = _meshGenerator.Generate(heightMap, terrain.ChunkSize, terrain.ChunkSize, lod);
             var mesh = meshData.CreateMesh();
             _meshFilter.sharedMesh = mesh;
-            //_meshCollider.sharedMesh = mesh;
             MeshMarker.End();
             return meshData;
         }
