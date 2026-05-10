@@ -16,7 +16,7 @@ namespace Core
             _heightCurve = heightCurve;
         }
 
-        public MeshData Generate(NativeArray<float> heightMap, int width, int height, int lod = 0)
+        public async Awaitable<MeshData> Generate(NativeArray<float> heightMap, int width, int height, int lod = 0)
         {
             var topLeftX = (width - 1) / -2f;
             var topLeftZ = (height - 1) / 2f;
@@ -28,14 +28,14 @@ namespace Core
 
             var meshData = new MeshData(verticesPerLineX, verticesPerLineY);
 
-            var bakedCurve = new NativeArray<float>(256, Allocator.TempJob);
+            var bakedCurve = new NativeArray<float>(256, Allocator.Persistent);
             try
             {
                 for (var i = 0; i < bakedCurve.Length; i++)
                 {
                     bakedCurve[i] = _heightCurve.Evaluate(i / (float)(bakedCurve.Length - 1));
                 }
-
+                await Awaitable.EndOfFrameAsync();
                 var meshJob = new MeshJob
                 {
                     VerticesPerLineX = verticesPerLineX,
@@ -54,8 +54,11 @@ namespace Core
                 };
 
                 var handle = meshJob.ScheduleParallel(verticesPerLineX * verticesPerLineY, 64, default);
+                while (!handle.IsCompleted)
+                {
+                    await Awaitable.NextFrameAsync();
+                }
                 handle.Complete();
-
                 return meshData;
             }
             catch

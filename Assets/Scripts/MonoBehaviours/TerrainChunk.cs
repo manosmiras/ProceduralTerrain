@@ -1,7 +1,5 @@
 ﻿using Core;
-using TMPro;
 using Unity.Collections;
-using Unity.Profiling;
 using UnityEngine;
 
 namespace MonoBehaviours
@@ -11,18 +9,13 @@ namespace MonoBehaviours
     {
         public MeshData MeshData;
         public NativeArray<float> HeightMap;
-        public int Lod;
         private MeshFilter _meshFilter;
-        private MeshCollider _meshCollider;
-        private static readonly ProfilerMarker NoiseMarker = new ProfilerMarker("ProceduralTerrain.Noise");
-        private static readonly ProfilerMarker MeshMarker = new ProfilerMarker("ProceduralTerrain.Mesh");
         private HeightMapGenerator _heightMapGenerator;
         private MeshGenerator _meshGenerator;
 
         private void Awake()
         {
             _meshFilter = GetComponent<MeshFilter>();
-            _meshCollider = GetComponent<MeshCollider>();
             var terrain = ProceduralTerrain.Instance;
             _heightMapGenerator = new HeightMapGenerator(
                 width: terrain.ChunkSize,
@@ -36,9 +29,8 @@ namespace MonoBehaviours
             _meshGenerator = new MeshGenerator(terrain.HeightMultiplier, terrain.HeightCurve);
         }
 
-        public void Generate(int lod = 0)
+        public async Awaitable Generate(int lod = 0)
         {
-            Lod = lod;
             if (HeightMap.IsCreated)
             {
                 HeightMap.Dispose();
@@ -47,42 +39,37 @@ namespace MonoBehaviours
             {
                 MeshData.Dispose();
             }
-            HeightMap = GenerateHeightMap();
-            MeshData = GenerateMesh(HeightMap, lod);
+            HeightMap = await GenerateHeightMap();
+            MeshData = await GenerateMesh(HeightMap, lod);
         }
 
-        public void UpdateLod(int lod)
+        public async Awaitable UpdateLod(int lod)
         {
-            Lod = lod;
             if (MeshData.IsCreated)
             {
                 MeshData.Dispose();
             }
-
+            
             if (!HeightMap.IsCreated)
             {
-                HeightMap = GenerateHeightMap();
+                HeightMap = await GenerateHeightMap();
             }
             
-            MeshData = GenerateMesh(HeightMap, lod);
+            MeshData = await GenerateMesh(HeightMap, lod);
         }
 
-        private NativeArray<float> GenerateHeightMap()
+        private Awaitable<NativeArray<float>> GenerateHeightMap()
         {
-            NoiseMarker.Begin();
             var heightMap = _heightMapGenerator.Generate(transform.position);
-            NoiseMarker.End();
             return heightMap;
         }
 
-        private MeshData GenerateMesh(NativeArray<float> heightMap, int lod)
+        private async Awaitable<MeshData> GenerateMesh(NativeArray<float> heightMap, int lod)
         {
-            MeshMarker.Begin();
             var terrain = ProceduralTerrain.Instance;
-            var meshData = _meshGenerator.Generate(heightMap, terrain.ChunkSize, terrain.ChunkSize, lod);
+            var meshData = await _meshGenerator.Generate(heightMap, terrain.ChunkSize, terrain.ChunkSize, lod);
             var mesh = meshData.CreateMesh();
             _meshFilter.sharedMesh = mesh;
-            MeshMarker.End();
             return meshData;
         }
 

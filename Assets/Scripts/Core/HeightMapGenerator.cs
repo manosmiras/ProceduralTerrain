@@ -28,10 +28,10 @@ namespace Core
             _lacunarity = lacunarity;
         }
 
-        public NativeArray<float> Generate(Vector3 offset)
+        public async Awaitable<NativeArray<float>> Generate(Vector3 offset)
         {
             var rng = new System.Random(_seed);
-            var octaveOffsets = new NativeArray<float2>(_octaves, Allocator.TempJob);
+            var octaveOffsets = new NativeArray<float2>(_octaves, Allocator.Persistent);
             float maxPossibleHeight = 1 / (1 - _persistence);
             for (var i = 0; i < _octaves; i++)
             {
@@ -45,6 +45,7 @@ namespace Core
 
             try
             {
+                await Awaitable.EndOfFrameAsync();
                 var noiseJob = new HeightMapJob
                 {
                     Width = _width,
@@ -58,8 +59,12 @@ namespace Core
                 };
 
                 var handle = noiseJob.ScheduleParallel(length, 64, default);
+                //await Awaitable.NextFrameAsync();
+                while (!handle.IsCompleted)
+                {
+                    await Awaitable.NextFrameAsync();
+                }
                 handle.Complete();
-
                 Normalize(result, maxPossibleHeight);
                 return result;
             }

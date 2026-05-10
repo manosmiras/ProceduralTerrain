@@ -17,6 +17,8 @@ namespace MonoBehaviours
         public int ChunkRadius = 2;
         public GameObject TerrainChunkPrefab;
         public TerrainChunk[,] Chunks;
+        
+        public event Action TerrainInitialized;
     
         private static readonly ProfilerMarker InitializeChunksMarker = new("ProceduralTerrain.InitializeChunks");
         private static readonly ProfilerMarker RegenerateChunksMarker = new("ProceduralTerrain.RegenerateChunks");
@@ -44,9 +46,8 @@ namespace MonoBehaviours
             }
         }
 
-        public void InitializeChunks()
+        public async void InitializeChunks()
         {
-            InitializeChunksMarker.Begin();
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
@@ -55,16 +56,15 @@ namespace MonoBehaviours
                 for (var y = 0; y < ChunkRadius; y++)
                 {
                     var position = start + new Vector3(x * (ChunkSize - 1), 0, y * (ChunkSize - 1));
-                    var chunk = SpawnTerrainChunk(position: position, lod: GetLod(x, y));
+                    var chunk = await SpawnTerrainChunk(position: position, lod: GetLod(x, y));
                     Chunks[x, y] = chunk;
                 }
             }
-            InitializeChunksMarker.End();
+            TerrainInitialized?.Invoke();
         }
 
-        private void RegenerateChunks()
+        private async void RegenerateChunks()
         {
-            RegenerateChunksMarker.Begin();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             
@@ -81,21 +81,18 @@ namespace MonoBehaviours
                     Chunks[x, y] = Chunks[x, y + 1];
                 }
             }
-            
             for (var x = 0; x < width; x++)
             {
                 var position = transform.position + new Vector3(x * (ChunkSize - 1), 0, (height - 1 + _generationCount) * (ChunkSize - 1));
-                var chunk = SpawnTerrainChunk(position, Math.Max(0, height - 2));
+                var chunk = await SpawnTerrainChunk(position, Math.Max(0, height - 2));
                 Chunks[x, height - 1] = chunk;
             }
             _generationCount++;
-            RegenerateChunksMarker.End();
             UpdateLods();
         }
 
         private void UpdateLods()
         {
-            UpdateLodsMarker.Begin();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             for (var y = 0; y < height; y++)
@@ -106,7 +103,6 @@ namespace MonoBehaviours
                     chunk.UpdateLod(GetLod(x, y));
                 }
             }
-            UpdateLodsMarker.End();
         }
         
         private int GetLod(int x, int y)
@@ -117,12 +113,12 @@ namespace MonoBehaviours
             return Math.Max(lodX, lodY);
         }
     
-        private TerrainChunk SpawnTerrainChunk(Vector3 position, int lod)
+        private async Awaitable<TerrainChunk> SpawnTerrainChunk(Vector3 position, int lod)
         {
             var go = Instantiate(TerrainChunkPrefab, transform);
             go.transform.position = new Vector3(position.x, 0, position.z);
             var terrainChunk = go.GetComponent<TerrainChunk>();
-            terrainChunk.Generate(lod);
+            await terrainChunk.Generate(lod);
             return terrainChunk;
         }
     
