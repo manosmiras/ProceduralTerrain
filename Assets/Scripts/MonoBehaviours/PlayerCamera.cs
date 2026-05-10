@@ -1,88 +1,33 @@
-using Unity.Mathematics;
+using System;
 using UnityEngine;
-using UnityEngine.Splines;
 
 namespace MonoBehaviours
 {
     public class PlayerCamera : MonoBehaviour
     {
         public float Speed = 40f;
-        public int PathSamples = 8;
-
-        private Spline _splinePath;
-        private float3[] _cameraPath;
-        private TerrainChunk _chunk;
-        private int _pathIndex;
-        private float _progress;
-        private bool _shouldUpdateLods = true;
-    
-        private void OnEnable()
+        public event Action TraversedChunk;
+        private float _distanceTraveled;
+        
+        private void Start()
         {
-            ProceduralTerrain.Instance.OnTerrainGenerated += GenerateCameraPath;
+            var terrain = ProceduralTerrain.Instance;
+            var centerX = terrain.Chunks.GetLength(0) / 2;
+            var chunk = terrain.Chunks[centerX, 0];
+            transform.position = chunk.transform.position + new Vector3(0, terrain.HeightMultiplier, 0);
+            _distanceTraveled = 0;
         }
 
-        private void GenerateCameraPath()
-        {
-            Debug.Log("Generating camera path");
-            var centerX = ProceduralTerrain.Instance.Chunks.GetLength(0) / 2;
-            var chunk = ProceduralTerrain.Instance.Chunks[centerX, 0];
-            _cameraPath = GetPathForChunk(chunk, PathSamples);
-            _splinePath = new Spline();
-            _splinePath.AddRange(_cameraPath);
-        }
-
-        private float3[] GetPathForChunk(TerrainChunk terrainChunk, int samples)
-        {
-            var path = new float3[samples];
-            var width = terrainChunk.MeshData.Width;
-            var height = terrainChunk.MeshData.Height;
-            var x = width / 2f;
-
-            for (var i = 0; i < samples; i++)
-            {
-                var z = height - 1 - i * ((height - 1) / (float)(samples - 1));
-                var vertexZ = Mathf.RoundToInt(z);
-                var vertexIndex = (int)x + vertexZ * width;
-
-                path[i] = (float3)terrainChunk.transform.position + terrainChunk.MeshData.Vertices[vertexIndex];
-            }
-
-            return path;
-        }
-    
         private void Update()
         {
-            for (var i = 0; i < _cameraPath.Length - 1; i++)
+            var translation = Vector3.forward * Time.deltaTime * Speed;
+            transform.Translate(translation);
+            _distanceTraveled += translation.magnitude;
+            if (_distanceTraveled > ProceduralTerrain.Instance.ChunkSize)
             {
-                Debug.DrawLine(_cameraPath[i], _cameraPath[i + 1], Color.red);
+                TraversedChunk?.Invoke();
+                _distanceTraveled = 0;
             }
-        }
-    
-        private void LateUpdate()
-        {
-            if (_splinePath == null || _splinePath.Count < 2)
-                return;
-            _progress += (Speed * Time.deltaTime) / GetApproxSplineLength();
-            if (_progress >= 0.5f && _shouldUpdateLods)
-            {
-                ProceduralTerrain.Instance.UpdateLods();
-                _shouldUpdateLods = false;
-            }
-            if (_progress >= 1.0f)
-            {
-                ProceduralTerrain.Instance.RegenerateChunks();
-                _progress = 0f;
-                _shouldUpdateLods = true;
-                return;
-            }
-            _splinePath.Evaluate(_progress, out var position, out var tangent, out var up);
-            transform.position = position;
-            //transform.rotation = Quaternion.LookRotation(tangent, up);
-        }
-    
-        private float GetApproxSplineLength()
-        {
-            return ProceduralTerrain.Instance.Chunks.GetLength(1) * ProceduralTerrain.Instance.ChunkSize;
         }
     }
 }

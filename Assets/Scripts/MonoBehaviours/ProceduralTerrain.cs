@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace MonoBehaviours
 {
-    [ExecuteInEditMode]
     public class ProceduralTerrain : MonoSingleton<ProceduralTerrain>
     {
         public float NoiseScale = 80f;
@@ -18,19 +17,28 @@ namespace MonoBehaviours
         public int ChunkRadius = 2;
         public GameObject TerrainChunkPrefab;
         public TerrainChunk[,] Chunks;
-        public event Action OnTerrainGenerated;
     
-        private static readonly ProfilerMarker TerrainGeneration = new ProfilerMarker("ProceduralTerrain.Generation");
+        private static readonly ProfilerMarker InitializeChunksMarker = new("ProceduralTerrain.InitializeChunks");
+        private static readonly ProfilerMarker RegenerateChunksMarker = new("ProceduralTerrain.RegenerateChunks");
+        private static readonly ProfilerMarker UpdateLodsMarker = new("ProceduralTerrain.UpdateLods");
         private int _generationCount = 1;
+        private PlayerCamera _playerCamera;
 
         protected void Start()
         {
             InitializeChunks();
+            _playerCamera = FindFirstObjectByType<PlayerCamera>();
+            _playerCamera.TraversedChunk += RegenerateChunks;
+        }
+
+        private void OnDisable()
+        {
+            _playerCamera.TraversedChunk -= RegenerateChunks;
         }
 
         public void InitializeChunks()
         {
-            TerrainGeneration.Begin();
+            InitializeChunksMarker.Begin();
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
@@ -43,12 +51,12 @@ namespace MonoBehaviours
                     Chunks[x, y] = chunk;
                 }
             }
-            OnTerrainGenerated?.Invoke();
-            TerrainGeneration.End();
+            InitializeChunksMarker.End();
         }
 
         public void RegenerateChunks()
         {
+            RegenerateChunksMarker.Begin();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             
@@ -72,14 +80,14 @@ namespace MonoBehaviours
                 var chunk = SpawnTerrainChunk(position, Math.Max(0, height - 2));
                 Chunks[x, height - 1] = chunk;
             }
-            
             _generationCount++;
+            RegenerateChunksMarker.End();
             UpdateLods();
-            OnTerrainGenerated?.Invoke();
         }
 
         public void UpdateLods()
         {
+            UpdateLodsMarker.Begin();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             for (var y = 0; y < height; y++)
@@ -91,6 +99,7 @@ namespace MonoBehaviours
                     chunk.UpdateLod(newLod);
                 }
             }
+            UpdateLodsMarker.End();
         }
     
         private TerrainChunk SpawnTerrainChunk(Vector3 position, int lod)
