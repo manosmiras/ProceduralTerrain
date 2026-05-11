@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -29,41 +30,56 @@ namespace MonoBehaviours
         protected override void Awake()
         {
             base.Awake();
-            InitializeChunks();
+            _ = InitializeChunks();
         }
 
         protected void Start()
         {
             _playerCamera = FindFirstObjectByType<PlayerCamera>();
-            _playerCamera.TraversedChunk += RegenerateChunks;
+            _playerCamera.TraversedChunk += OnTraversedChunk;
         }
 
         private void OnDisable()
         {
             if (_playerCamera != null)
             {
-                _playerCamera.TraversedChunk -= RegenerateChunks;
+                _playerCamera.TraversedChunk -= OnTraversedChunk;
             }
         }
 
-        public async void InitializeChunks()
+        private void OnTraversedChunk()
+        {
+            _ = RegenerateChunks();
+        }
+
+        public async Task InitializeChunks()
         {
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
+            var tasks = new Task<(int x, int y, TerrainChunk chunk)>[ChunkRadius * ChunkRadius];
+            var index = 0;
             for (var x = 0; x < ChunkRadius; x++)
             {
                 for (var y = 0; y < ChunkRadius; y++)
                 {
                     var position = start + new Vector3(x * (ChunkSize - 1), 0, y * (ChunkSize - 1));
-                    var chunk = await SpawnTerrainChunk(position: position, lod: GetLod(x, y));
-                    Chunks[x, y] = chunk;
+                    var localX = x;
+                    var localY = y;
+                    tasks[index++] = SpawnTerrainChunk(position: position, lod: GetLod(x, y))
+                        .ContinueWith(t => (localX, localY, t.Result));
                 }
+            }
+
+            var results = await Task.WhenAll(tasks);
+            foreach (var (x, y, chunk) in results)
+            {
+                Chunks[x, y] = chunk;
             }
             TerrainInitialized?.Invoke();
         }
 
-        private async void RegenerateChunks()
+        private async Task RegenerateChunks()
         {
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
@@ -81,28 +97,42 @@ namespace MonoBehaviours
                     Chunks[x, y] = Chunks[x, y + 1];
                 }
             }
+
+            var tasks = new Task<(int x, TerrainChunk chunk)>[width];
             for (var x = 0; x < width; x++)
             {
                 var position = transform.position + new Vector3(x * (ChunkSize - 1), 0, (height - 1 + _generationCount) * (ChunkSize - 1));
-                var chunk = await SpawnTerrainChunk(position, Math.Max(0, height - 2));
+                var localX = x;
+                tasks[x] = SpawnTerrainChunk(position, Math.Max(0, height - 2))
+                    .ContinueWith(t => (localX, t.Result));
+            }
+
+            var results = await Task.WhenAll(tasks);
+            foreach (var (x, chunk) in results)
+            {
                 Chunks[x, height - 1] = chunk;
             }
+
             _generationCount++;
-            UpdateLods();
+            await UpdateLods();
         }
 
-        private void UpdateLods()
+        private async Task UpdateLods()
         {
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
+            var tasks = new Task[width * height];
+            var index = 0;
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
                 {
                     var chunk = Chunks[x, y];
-                    chunk.UpdateLod(GetLod(x, y));
+                    tasks[index++] = chunk.UpdateLod(GetLod(x, y));
                 }
             }
+
+            await Task.WhenAll(tasks);
         }
         
         private int GetLod(int x, int y)
@@ -113,7 +143,7 @@ namespace MonoBehaviours
             return Math.Max(lodX, lodY);
         }
     
-        private async Awaitable<TerrainChunk> SpawnTerrainChunk(Vector3 position, int lod)
+        private async Task<TerrainChunk> SpawnTerrainChunk(Vector3 position, int lod)
         {
             var go = Instantiate(TerrainChunkPrefab, transform);
             go.transform.position = new Vector3(position.x, 0, position.z);

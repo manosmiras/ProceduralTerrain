@@ -1,4 +1,5 @@
-﻿using Jobs;
+﻿using System.Threading.Tasks;
+using Jobs;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -28,7 +29,7 @@ namespace Core
             _lacunarity = lacunarity;
         }
 
-        public async Awaitable<NativeArray<float>> Generate(Vector3 offset)
+        public async Task<NativeArray<float>> Generate(Vector3 offset)
         {
             var rng = new System.Random(_seed);
             var octaveOffsets = new NativeArray<float2>(_octaves, Allocator.Persistent);
@@ -45,7 +46,6 @@ namespace Core
 
             try
             {
-                await Awaitable.EndOfFrameAsync();
                 var noiseJob = new HeightMapJob
                 {
                     Width = _width,
@@ -59,10 +59,9 @@ namespace Core
                 };
 
                 var handle = noiseJob.ScheduleParallel(length, 64, default);
-                //await Awaitable.NextFrameAsync();
                 while (!handle.IsCompleted)
                 {
-                    await Awaitable.NextFrameAsync();
+                    await Task.Yield();
                 }
                 handle.Complete();
                 Normalize(result, maxPossibleHeight);

@@ -1,4 +1,5 @@
-﻿using Core;
+﻿using System.Threading.Tasks;
+using Core;
 using Unity.Collections;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace MonoBehaviours
             _meshGenerator = new MeshGenerator(terrain.HeightMultiplier, terrain.HeightCurve);
         }
 
-        public async Awaitable Generate(int lod = 0)
+        public async Task Generate(int lod = 0)
         {
             if (HeightMap.IsCreated)
             {
@@ -43,7 +44,7 @@ namespace MonoBehaviours
             MeshData = await GenerateMesh(HeightMap, lod);
         }
 
-        public async Awaitable UpdateLod(int lod)
+        public async Task UpdateLod(int lod)
         {
             if (MeshData.IsCreated)
             {
@@ -58,13 +59,13 @@ namespace MonoBehaviours
             MeshData = await GenerateMesh(HeightMap, lod);
         }
 
-        private Awaitable<NativeArray<float>> GenerateHeightMap()
+        private Task<NativeArray<float>> GenerateHeightMap()
         {
             var heightMap = _heightMapGenerator.Generate(transform.position);
             return heightMap;
         }
 
-        private async Awaitable<MeshData> GenerateMesh(NativeArray<float> heightMap, int lod)
+        private async Task<MeshData> GenerateMesh(NativeArray<float> heightMap, int lod)
         {
             var terrain = ProceduralTerrain.Instance;
             var meshData = await _meshGenerator.Generate(heightMap, terrain.ChunkSize, terrain.ChunkSize, lod);

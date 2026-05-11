@@ -1,4 +1,5 @@
-﻿using Jobs;
+﻿using System.Threading.Tasks;
+using Jobs;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Core
             _heightCurve = heightCurve;
         }
 
-        public async Awaitable<MeshData> Generate(NativeArray<float> heightMap, int width, int height, int lod = 0)
+        public async Task<MeshData> Generate(NativeArray<float> heightMap, int width, int height, int lod = 0)
         {
             var topLeftX = (width - 1) / -2f;
             var topLeftZ = (height - 1) / 2f;
@@ -35,7 +36,6 @@ namespace Core
                 {
                     bakedCurve[i] = _heightCurve.Evaluate(i / (float)(bakedCurve.Length - 1));
                 }
-                await Awaitable.EndOfFrameAsync();
                 var meshJob = new MeshJob
                 {
                     VerticesPerLineX = verticesPerLineX,
@@ -56,7 +56,7 @@ namespace Core
                 var handle = meshJob.ScheduleParallel(verticesPerLineX * verticesPerLineY, 64, default);
                 while (!handle.IsCompleted)
                 {
-                    await Awaitable.NextFrameAsync();
+                    await Task.Yield();
                 }
                 handle.Complete();
                 return meshData;
