@@ -11,6 +11,7 @@ namespace MonoBehaviours
         
         private void Start()
         {
+            Cursor.visible = false;
             var terrain = ProceduralTerrain.Instance;
             terrain.TerrainInitialized += Init;
         }
