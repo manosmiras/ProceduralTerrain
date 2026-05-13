@@ -1,0 +1,56 @@
+:root {
+    --text-color: white;
+}
+
+#Root {
+    padding: 6px;
+    -unity-font-definition: url("project://database/Assets/Fonts/JetBrainsMono-Regular SDF.asset");
+}
+
+VisualElement {
+    color: var(--text-color);
+}
+
+VisualElement:checked:focus {
+    color: var(--text-color);
+}
+
+#unity-checkmark {
+    -unity-background-image-tint-color: var(--text-color);
+}
+
+#unity-content {
+    margin-left: 0;
+    height: 200px;
+}
+
+#unity-text-input {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
+
+/* Focus text color overrides */
+:focus > .unity-label,
+:focus > .unity-base-field__label,
+:focus .unity-base-field__input,
+.unity-text-element:focus,
+.unity-base-field:focus > .unity-label {
+    color: var(--text-color);
+}
+
+#Foldout {
+    width: 400px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
+
+Toggle {
+    background-color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+#Content {
+    padding: 6px;
+}

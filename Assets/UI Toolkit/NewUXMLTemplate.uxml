@@ -1,0 +1,10 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/NewUSSFile.uss?fileID=7433441132597879392&amp;guid=42e7c521bf0f3d5468c8aa8662ee4b9b&amp;type=3#NewUSSFile"/>
+    <ui:VisualElement name="Root" style="flex-grow: 1;">
+        <ui:Foldout text="Settings" enabled="true" name="Foldout" value="true" tooltip="" style="flex-grow: 0;">
+            <ui:VisualElement name="Content" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: column;">
+                <ui:Slider label="Height Multiplier" value="367.9" high-value="1000" show-input-field="true" name="HeightMultiplier"/>
+            </ui:VisualElement>
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>
