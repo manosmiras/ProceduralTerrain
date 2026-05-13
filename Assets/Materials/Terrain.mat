@@ -56,6 +56,18 @@ Material:
         m_Texture: {fileID: 2800000, guid: cf11e3035c1e6f4439075a746cccd5aa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_a35f87c2c22147d9be30378bc395fd26_Color_1337086967_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2d9283d016f266a4d951d213c99c9f65, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_a35f87c2c22147d9be30378bc395fd26_Normal_3112131688_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 9cccc30aa965ea743a3f85486115dfdc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_a35f87c2c22147d9be30378bc395fd26_Smoothness_1683410218_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 88825ac9a273c174799e58b478b145b2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Triplanar_0a905c4162f949d0b369b498c1176c0a_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 88825ac9a273c174799e58b478b145b2, type: 3}
         m_Scale: {x: 1, y: 1}
