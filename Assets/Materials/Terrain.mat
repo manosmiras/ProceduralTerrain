@@ -32,6 +32,30 @@ Material:
         m_Texture: {fileID: 2800000, guid: 1e87ce55f06e1ab4592802610a288325, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_2490d0d54e3e4d68a381ee898dc078df_Color_1337086967_Texture2D:
+        m_Texture: {fileID: 2800000, guid: a34f86f4e5e13d4438664ca9c7680cf3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_2490d0d54e3e4d68a381ee898dc078df_Normal_3112131688_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 54a6f303214dda941b5ed55f58f07c39, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_2490d0d54e3e4d68a381ee898dc078df_Smoothness_1683410218_Texture2D:
+        m_Texture: {fileID: 2800000, guid: b7d8f79d490f95240b3544e76d242ba4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_6c283c044265489ca739e7c0afb2dbbb_Color_1337086967_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 1e87ce55f06e1ab4592802610a288325, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_6c283c044265489ca739e7c0afb2dbbb_Normal_3112131688_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 255766198fd3163469de3c91b8e28783, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TriplanarPBR_6c283c044265489ca739e7c0afb2dbbb_Smoothness_1683410218_Texture2D:
+        m_Texture: {fileID: 2800000, guid: cf11e3035c1e6f4439075a746cccd5aa, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Triplanar_0a905c4162f949d0b369b498c1176c0a_Texture_1_Texture2D:
         m_Texture: {fileID: 2800000, guid: 88825ac9a273c174799e58b478b145b2, type: 3}
         m_Scale: {x: 1, y: 1}
