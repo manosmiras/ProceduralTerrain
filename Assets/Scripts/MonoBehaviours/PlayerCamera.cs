@@ -6,6 +6,7 @@ namespace MonoBehaviours
     public class PlayerCamera : MonoBehaviour
     {
         public float Speed = 40f;
+        public bool ShouldMove = true;
         public event Action TraversedChunk;
         private float _distanceTraveled;
         
@@ -26,6 +27,7 @@ namespace MonoBehaviours
 
         private void Update()
         {
+            if (!ShouldMove) return;
             var translation = Vector3.forward * Time.deltaTime * Speed;
             transform.Translate(translation);
             _distanceTraveled += translation.magnitude;

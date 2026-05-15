@@ -10,10 +10,14 @@ namespace UI
         private Label _chunkGenerationLabel;
         private Label _lodUpdatesLabel;
         private Label _totalLabel;
+        private Label _fpsLabel;
+        private SliderInt _chunkRadiusSlider;
         private Slider _heightMultiplierSlider;
         private Button _restartButton;
+        private Toggle _moveCameraToggle;
         private long _lastChunkGenerationTime;
         private long _lastLodUpdatesTime;
+        private PlayerCamera _playerCamera;
 
         private void Awake()
         {
@@ -22,15 +26,23 @@ namespace UI
 
         private void OnEnable()
         {
+            _playerCamera = FindFirstObjectByType<PlayerCamera>();
             var root = _uiDocument.rootVisualElement;
             _chunkGenerationLabel = root.Q<Label>("ChunkGeneration");
             ProceduralTerrain.Instance.TerrainRegenerated += OnTerrainRegenerated;
             _lodUpdatesLabel = root.Q<Label>("LodUpdates");
             ProceduralTerrain.Instance.TerrainLodsUpdated += OnTerrainLodsUpdated;
             _totalLabel = root.Q<Label>("Total");
+            _fpsLabel = root.Q<Label>("FPS");
             _heightMultiplierSlider = root.Q<Slider>("HeightMultiplier");
             _heightMultiplierSlider.RegisterValueChangedCallback(OnHeightMultiplierChanged);
             _heightMultiplierSlider.value = ProceduralTerrain.Instance.HeightMultiplier;
+            _chunkRadiusSlider = root.Q<SliderInt>("ChunkRadius");
+            _chunkRadiusSlider.RegisterValueChangedCallback(OnChunkRadiusChanged);
+            _chunkRadiusSlider.value = ProceduralTerrain.Instance.ChunkRadius;
+            _moveCameraToggle = root.Q<Toggle>("MoveCamera");
+            _moveCameraToggle.RegisterValueChangedCallback(OnMoveCameraToggleChanged);
+            _moveCameraToggle.value = _playerCamera.ShouldMove;
             
             _restartButton = root.Q<Button>("Restart");
             _restartButton.clicked += OnRestartButtonClicked;
@@ -47,9 +59,13 @@ namespace UI
             _restartButton.clicked -= OnRestartButtonClicked;
         }
 
+        private void Update()
+        {
+            _fpsLabel.text = $"{(int) (1f / Time.unscaledDeltaTime)} FPS ({_lastChunkGenerationTime + Time.unscaledDeltaTime}ms)";
+        }
+
         private void OnHeightMultiplierChanged(ChangeEvent<float> evt)
         {
-            Debug.Log($"Chunk Radius changed from {evt.previousValue} to {evt.newValue}");
             ProceduralTerrain.Instance.HeightMultiplier = evt.newValue;
         }
         
@@ -71,5 +87,16 @@ namespace UI
             _lodUpdatesLabel.text = $"{elapsedTime}ms";
             _totalLabel.text = $"{_lastChunkGenerationTime + _lastLodUpdatesTime}ms";
         }
+        
+        private void OnMoveCameraToggleChanged(ChangeEvent<bool> evt)
+        {
+            _playerCamera.ShouldMove = evt.newValue;
+        }
+        
+        private void OnChunkRadiusChanged(ChangeEvent<int> evt)
+        {
+            ProceduralTerrain.Instance.ChunkRadius = evt.newValue;
+        }
+
     }
 }

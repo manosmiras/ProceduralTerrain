@@ -15,16 +15,18 @@ VisualElement:checked:focus {
     color: var(--text-color);
 }
 
-#unity-checkmark {
+#Foldout Toggle VisualElement #unity-checkmark {
     -unity-background-image-tint-color: var(--text-color);
 }
 
 #unity-content,
-Slider {
+Slider,
+SliderInt {
     margin-left: 0;
 }
 
 #unity-text-input,
+.toggle #unity-checkmark,
 Button {
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 6px;
