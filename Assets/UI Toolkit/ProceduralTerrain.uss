@@ -4,7 +4,7 @@
 
 #Root {
     padding: 6px;
-    -unity-font-definition: url("project://database/Assets/Fonts/JetBrainsMono-Regular SDF.asset");
+    -unity-font-definition: url("project://database/Assets/Fonts/JetBrainsMono-Regular%20SDF.asset?fileID=11400000&guid=ea3105cd4c8bd2f4db65e50b2b867301&type=2#JetBrainsMono-Regular SDF");
 }
 
 VisualElement {
@@ -19,17 +19,17 @@ VisualElement:checked:focus {
     -unity-background-image-tint-color: var(--text-color);
 }
 
-#unity-content {
+#unity-content,
+Slider {
     margin-left: 0;
-    height: 200px;
 }
 
-#unity-text-input {
+#unity-text-input,
+Button {
     background-color: rgba(0, 0, 0, 0.5);
     border-radius: 6px;
 }
 
-/* Focus text color overrides */
 :focus > .unity-label,
 :focus > .unity-base-field__label,
 :focus .unity-base-field__input,
@@ -53,4 +53,12 @@ Toggle {
 
 #Content {
     padding: 6px;
+}
+
+.container {
+    margin-left: 6px;
+}
+
+.title {
+    -unity-font-style: bold;
 }
