@@ -15,6 +15,7 @@ namespace UI
         private Slider _heightMultiplierSlider;
         private Button _restartButton;
         private Toggle _moveCameraToggle;
+        private Toggle _fogToggle;
         private double _lastChunkGenerationTime;
         private double _lastLodUpdatesTime;
         private PlayerCamera _playerCamera;
@@ -45,6 +46,10 @@ namespace UI
             _moveCameraToggle = root.Q<Toggle>("MoveCamera");
             _moveCameraToggle.RegisterValueChangedCallback(OnMoveCameraToggleChanged);
             _moveCameraToggle.value = _playerCamera.ShouldMove;
+            _fogToggle = root.Q<Toggle>("Fog");
+            _fogToggle.RegisterValueChangedCallback(OnFogToggleChanged);
+            _fogToggle.value = RenderSettings.fog;
+            
             
             _restartButton = root.Q<Button>("Restart");
             _restartButton.clicked += OnRestartButtonClicked;
@@ -60,6 +65,7 @@ namespace UI
             _heightMultiplierSlider.UnregisterValueChangedCallback(OnHeightMultiplierChanged);
             _chunkRadiusSlider.UnregisterValueChangedCallback(OnChunkRadiusChanged);
             _moveCameraToggle.UnregisterValueChangedCallback(OnMoveCameraToggleChanged);
+            _fogToggle.UnregisterValueChangedCallback(OnFogToggleChanged);
             _restartButton.clicked -= OnRestartButtonClicked;
         }
 
@@ -103,6 +109,11 @@ namespace UI
         private void OnChunkRadiusChanged(ChangeEvent<int> evt)
         {
             ProceduralTerrain.Instance.ChunkRadius = evt.newValue;
+        }
+        
+        private void OnFogToggleChanged(ChangeEvent<bool> evt)
+        {
+            RenderSettings.fog = evt.newValue;
         }
 
     }
