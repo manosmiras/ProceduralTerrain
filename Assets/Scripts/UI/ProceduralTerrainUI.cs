@@ -15,9 +15,11 @@ namespace UI
         private Slider _heightMultiplierSlider;
         private Button _restartButton;
         private Toggle _moveCameraToggle;
-        private long _lastChunkGenerationTime;
-        private long _lastLodUpdatesTime;
+        private double _lastChunkGenerationTime;
+        private double _lastLodUpdatesTime;
         private PlayerCamera _playerCamera;
+        private float _timeSinceLastUpdate;
+        private const float UpdateInterval = .25f;
 
         private void Awake()
         {
@@ -50,18 +52,23 @@ namespace UI
 
         private void OnDisable()
         {
-            /*if (ProceduralTerrain.Instance != null)
+            if (ProceduralTerrain.Instance != null)
             {
                 ProceduralTerrain.Instance.TerrainRegenerated -= OnTerrainRegenerated;
                 ProceduralTerrain.Instance.TerrainLodsUpdated -= OnTerrainLodsUpdated;
-            }*/
+            }
             _heightMultiplierSlider.UnregisterValueChangedCallback(OnHeightMultiplierChanged);
+            _chunkRadiusSlider.UnregisterValueChangedCallback(OnChunkRadiusChanged);
+            _moveCameraToggle.UnregisterValueChangedCallback(OnMoveCameraToggleChanged);
             _restartButton.clicked -= OnRestartButtonClicked;
         }
 
         private void Update()
         {
-            _fpsLabel.text = $"{(int) (1f / Time.unscaledDeltaTime)} FPS ({_lastChunkGenerationTime + Time.unscaledDeltaTime}ms)";
+            _timeSinceLastUpdate += Time.deltaTime;
+            if (_timeSinceLastUpdate < UpdateInterval) return;
+            _timeSinceLastUpdate = 0f;
+            _fpsLabel.text = $"{(int) (1f / Time.deltaTime)} FPS ({Time.deltaTime * 1000:F2}ms)";
         }
 
         private void OnHeightMultiplierChanged(ChangeEvent<float> evt)
@@ -74,18 +81,18 @@ namespace UI
             _ = ProceduralTerrain.Instance.InitializeChunks();
         }
 
-        private void OnTerrainRegenerated(long elapsedTime)
+        private void OnTerrainRegenerated(double elapsedTime)
         {
             _lastChunkGenerationTime = elapsedTime;
-            _chunkGenerationLabel.text = $"{elapsedTime}ms";
-            _totalLabel.text = $"{_lastChunkGenerationTime + _lastLodUpdatesTime}ms";
+            _chunkGenerationLabel.text = $"{elapsedTime:F2}ms";
+            _totalLabel.text = $"{_lastChunkGenerationTime + _lastLodUpdatesTime:F2}ms";
         }
         
-        private void OnTerrainLodsUpdated(long elapsedTime)
+        private void OnTerrainLodsUpdated(double elapsedTime)
         {
             _lastLodUpdatesTime = elapsedTime;
-            _lodUpdatesLabel.text = $"{elapsedTime}ms";
-            _totalLabel.text = $"{_lastChunkGenerationTime + _lastLodUpdatesTime}ms";
+            _lodUpdatesLabel.text = $"{elapsedTime:F2}ms";
+            _totalLabel.text = $"{_lastChunkGenerationTime + _lastLodUpdatesTime:F2}ms";
         }
         
         private void OnMoveCameraToggleChanged(ChangeEvent<bool> evt)

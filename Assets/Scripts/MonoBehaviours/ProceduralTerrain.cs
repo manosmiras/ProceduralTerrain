@@ -21,11 +21,11 @@ namespace MonoBehaviours
         public TerrainChunk[,] Chunks;
         
         public event Action TerrainInitialized;
-        public event Action<long> TerrainRegenerated;
-        public event Action<long> TerrainLodsUpdated;
+        public event Action<double> TerrainRegenerated;
+        public event Action<double> TerrainLodsUpdated;
     
-        private Stopwatch _regenerateTerrainStopwatch = new();
-        private Stopwatch _updateLodsStopwatch = new();
+        private readonly Stopwatch _regenerateTerrainStopwatch = new();
+        private readonly Stopwatch _updateLodsStopwatch = new();
         
         private int _generationCount;
         private PlayerCamera _playerCamera;
@@ -120,7 +120,7 @@ namespace MonoBehaviours
 
             _generationCount++;
             _regenerateTerrainStopwatch.Stop();
-            TerrainRegenerated?.Invoke(_regenerateTerrainStopwatch.ElapsedMilliseconds);
+            TerrainRegenerated?.Invoke(_regenerateTerrainStopwatch.Elapsed.TotalMilliseconds);
             await UpdateLods();
         }
 
@@ -142,7 +142,7 @@ namespace MonoBehaviours
 
             await Task.WhenAll(tasks);
             _updateLodsStopwatch.Stop();
-            TerrainLodsUpdated?.Invoke(_updateLodsStopwatch.ElapsedMilliseconds);
+            TerrainLodsUpdated?.Invoke(_updateLodsStopwatch.Elapsed.TotalMilliseconds);
         }
         
         private int GetLod(int x, int y)
