@@ -3,4 +3,4 @@
 *.unity filter=lfs diff=lfs merge=lfs -text
 *.exr filter=lfs diff=lfs merge=lfs -text
 
-Assets/TextMesh Pro/** linguist-vendored
+"Assets/TextMesh Pro/**" linguist-vendored
