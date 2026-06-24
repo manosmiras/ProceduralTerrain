@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Unity.Profiling;
 using UnityEngine;
@@ -20,11 +21,13 @@ namespace MonoBehaviours
         public TerrainChunk[,] Chunks;
         
         public event Action TerrainInitialized;
+        public event Action<double> TerrainRegenerated;
+        public event Action<double> TerrainLodsUpdated;
     
-        private static readonly ProfilerMarker InitializeChunksMarker = new("ProceduralTerrain.InitializeChunks");
-        private static readonly ProfilerMarker RegenerateChunksMarker = new("ProceduralTerrain.RegenerateChunks");
-        private static readonly ProfilerMarker UpdateLodsMarker = new("ProceduralTerrain.UpdateLods");
-        private int _generationCount = 1;
+        private readonly Stopwatch _regenerateTerrainStopwatch = new();
+        private readonly Stopwatch _updateLodsStopwatch = new();
+        
+        private int _generationCount;
         private PlayerCamera _playerCamera;
 
         protected override void Awake()
@@ -54,6 +57,7 @@ namespace MonoBehaviours
 
         public async Task InitializeChunks()
         {
+            _generationCount = 1;
             Chunks = new TerrainChunk[ChunkRadius, ChunkRadius];
             ClearChildren(transform);
             var start = transform.position;
@@ -81,6 +85,7 @@ namespace MonoBehaviours
 
         private async Task RegenerateChunks()
         {
+            _regenerateTerrainStopwatch.Restart();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             
@@ -114,11 +119,14 @@ namespace MonoBehaviours
             }
 
             _generationCount++;
+            _regenerateTerrainStopwatch.Stop();
+            TerrainRegenerated?.Invoke(_regenerateTerrainStopwatch.Elapsed.TotalMilliseconds);
             await UpdateLods();
         }
 
         private async Task UpdateLods()
         {
+            _updateLodsStopwatch.Restart();
             var width = Chunks.GetLength(0);
             var height = Chunks.GetLength(1);
             var tasks = new Task[width * height];
@@ -133,6 +141,8 @@ namespace MonoBehaviours
             }
 
             await Task.WhenAll(tasks);
+            _updateLodsStopwatch.Stop();
+            TerrainLodsUpdated?.Invoke(_updateLodsStopwatch.Elapsed.TotalMilliseconds);
         }
         
         private int GetLod(int x, int y)

@@ -1,0 +1,76 @@
+:root {
+    --text-color: white;
+}
+
+#Root {
+    padding: 6px;
+    -unity-font-definition: url("project://database/Assets/Fonts/JetBrainsMono-Regular%20SDF.asset?fileID=11400000&guid=ea3105cd4c8bd2f4db65e50b2b867301&type=2#JetBrainsMono-Regular SDF");
+}
+
+VisualElement {
+    color: var(--text-color);
+}
+
+VisualElement:checked:focus {
+    color: var(--text-color);
+}
+
+#Foldout Toggle VisualElement #unity-checkmark {
+    -unity-background-image-tint-color: var(--text-color);
+}
+
+#unity-content,
+Slider,
+SliderInt {
+    margin-left: 0;
+}
+
+#unity-text-input,
+.toggle #unity-checkmark,
+Button {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
+
+:focus > .unity-label,
+:focus > .unity-base-field__label,
+:focus .unity-base-field__input,
+.unity-text-element:focus,
+.unity-base-field:focus > .unity-label {
+    color: var(--text-color);
+}
+
+#Foldout {
+    width: 400px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 6px;
+}
+
+Toggle {
+    background-color: rgba(0, 0, 0, 0.5);
+    margin: 0;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+#Content {
+    padding: 6px;
+}
+
+.container {
+    margin-left: 6px;
+}
+
+.title {
+    -unity-font-style: bold;
+}
+
+.subtitle {
+    -unity-font-style: bold;
+}
+
+.separator {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+    margin-bottom: 6px;
+}

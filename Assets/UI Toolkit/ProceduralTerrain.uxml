@@ -1,0 +1,40 @@
+<ui:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/ProceduralTerrain.uss?fileID=7433441132597879392&amp;guid=42e7c521bf0f3d5468c8aa8662ee4b9b&amp;type=3#ProceduralTerrain"/>
+    <ui:VisualElement name="Root" style="flex-grow: 1;">
+        <ui:Foldout text="Procedural Terrain" enabled="true" name="Foldout" value="true" tooltip="" style="flex-grow: 0;">
+            <ui:VisualElement name="Content" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: column;">
+                <ui:Label text="Stats" name="" class="title"/>
+                <ui:VisualElement class="separator"/>
+                <ui:VisualElement name="" class="container" style="flex-grow: 1; flex-direction: column;">
+                    <ui:Label text="Main Thread&#10;" class="subtitle"/>
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-content: auto; justify-content: space-between;">
+                        <ui:Label text="FPS" name=""/>
+                        <ui:Label text="0" name="FPS"/>
+                    </ui:VisualElement>
+                    <ui:Label text="Background Thread&#10;" class="subtitle"/>
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; align-content: auto; justify-content: space-between;">
+                        <ui:Label text="Chunk Generation" name=""/>
+                        <ui:Label text="0ms" name="ChunkGeneration"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
+                        <ui:Label text="LOD Updates" name=""/>
+                        <ui:Label text="0ms" name="LodUpdates"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
+                        <ui:Label text="Total" name=""/>
+                        <ui:Label text="0ms" name="Total"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Label text="Controls" name="" class="title"/>
+                <ui:VisualElement class="separator"/>
+                <ui:VisualElement class="container" style="flex-grow: 1;">
+                    <ui:SliderInt label="Chunk Radius" value="3" high-value="40" name="ChunkRadius" direction="Horizontal" show-input-field="true"/>
+                    <ui:Slider label="Height Multiplier" value="367.9" high-value="1000" show-input-field="true" name="HeightMultiplier"/>
+                    <ui:Toggle label="Move Camera" name="MoveCamera" toggle-on-label-click="true" value="false" class="toggle" style="flex-grow: 0; align-items: stretch; justify-content: flex-start; align-content: auto; background-color: rgba(0, 0, 0, 0);"/>
+                    <ui:Toggle label="Fog" name="Fog" toggle-on-label-click="true" value="false" class="toggle" style="flex-grow: 0; align-items: stretch; justify-content: flex-start; align-content: auto; background-color: rgba(0, 0, 0, 0);"/>
+                </ui:VisualElement>
+                <ui:Button text="Restart" name="Restart"/>
+            </ui:VisualElement>
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>
